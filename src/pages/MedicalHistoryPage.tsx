@@ -1,57 +1,95 @@
 
-import React, { useState } from 'react';
-import { FileText, File, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { FileText, File, Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/components/ui/use-toast';
 import DashboardLayout from '@/components/DashboardLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useUser } from '@/contexts/UserContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
-// Mock data for medical records
-const mockTextRecords = [
-  {
-    id: '1',
-    title: 'Initial Consultation',
-    date: '2023-01-10',
-    content: 'Patient reports regular headaches for the past 2 weeks...',
-  },
-  {
-    id: '2',
-    title: 'Follow-up Visit',
-    date: '2023-01-24',
-    content: 'Headaches have decreased in frequency. Blood pressure normal...',
-  },
-  {
-    id: '3',
-    title: 'Blood Test Results',
-    date: '2023-02-05',
-    content: 'All blood work within normal ranges. Vitamin D slightly low...',
-  },
-];
-
-const mockVoiceRecords = [
-  {
-    id: '1',
-    title: 'Patient Description',
-    date: '2023-01-10',
-    duration: '2:45',
-  },
-  {
-    id: '2',
-    title: 'Doctor Recommendation',
-    date: '2023-01-24',
-    duration: '3:12',
-  },
-];
+// Types for our medical records
+type MedicalRecord = {
+  id: string;
+  title: string;
+  content?: string;
+  record_type: 'text' | 'voice';
+  duration?: string;
+  created_at: string;
+};
 
 const MedicalHistoryPage: React.FC = () => {
   const { t } = useLanguage();
+  const { user } = useUser();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('text');
 
-  const downloadAsPdf = (recordId: string) => {
-    console.log('Downloading record', recordId);
-    alert(`Downloading record ${recordId} as PDF...`);
+  // Query to fetch medical records
+  const { data: medicalRecords, isLoading, error } = useQuery({
+    queryKey: ['medicalRecords', user?.id],
+    queryFn: async () => {
+      if (!user) throw new Error('User not authenticated');
+      
+      const { data, error } = await supabase
+        .from('medical_records')
+        .select('*')
+        .eq(user.role === 'patient' ? 'patient_id' : 'patient_id', user.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as MedicalRecord[];
+    },
+    enabled: !!user,
+  });
+
+  // Filter records by type based on active tab
+  const textRecords = medicalRecords?.filter(record => record.record_type === 'text') || [];
+  const voiceRecords = medicalRecords?.filter(record => record.record_type === 'voice') || [];
+
+  // Function to track downloads
+  const trackDownload = async (recordId: string, downloadType: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('download_history')
+        .insert({
+          user_id: user.id,
+          record_id: recordId,
+          download_type: downloadType
+        });
+
+      if (error) {
+        console.error('Error tracking download:', error);
+      }
+    } catch (error) {
+      console.error('Failed to track download:', error);
+    }
   };
+
+  const downloadRecord = async (record: MedicalRecord) => {
+    // Mock download for now
+    toast({
+      title: t('downloadStarted'),
+      description: `${record.title} ${t('isBeingDownloaded')}`,
+    });
+
+    // Track the download
+    await trackDownload(record.id, record.record_type);
+  };
+
+  if (error) {
+    return (
+      <DashboardLayout title={t('medicalHistory')}>
+        <div className="p-4 bg-destructive/10 text-destructive rounded-md">
+          {(error as Error).message || t('errorLoadingRecords')}
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout title={t('medicalHistory')}>
@@ -68,66 +106,86 @@ const MedicalHistoryPage: React.FC = () => {
         </TabsList>
         
         <TabsContent value="text">
-          <div className="grid gap-4">
-            {mockTextRecords.map((record) => (
-              <Card key={record.id}>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-lg">{record.title}</CardTitle>
-                    <div className="text-sm text-muted-foreground">
-                      {new Date(record.date).toLocaleDateString()}
+          {isLoading ? (
+            <div className="flex justify-center items-center h-40">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : textRecords.length > 0 ? (
+            <div className="grid gap-4">
+              {textRecords.map((record) => (
+                <Card key={record.id}>
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-lg">{record.title}</CardTitle>
+                      <div className="text-sm text-muted-foreground">
+                        {new Date(record.created_at).toLocaleDateString()}
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="mb-4">{record.content}</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => downloadAsPdf(record.id)}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    {t('downloadAsPdf')}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="voice">
-          <div className="grid gap-4">
-            {mockVoiceRecords.map((record) => (
-              <Card key={record.id}>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-lg">{record.title}</CardTitle>
-                    <div className="text-sm text-muted-foreground">
-                      {new Date(record.date).toLocaleDateString()}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="text-sm text-muted-foreground">
-                      {record.duration}
-                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="mb-4">{record.content || t('noContent')}</p>
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => downloadAsPdf(record.id)}
+                      onClick={() => downloadRecord(record)}
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      {t('download')}
+                      {t('downloadAsPdf')}
                     </Button>
-                  </div>
-                  <div className="h-12 bg-secondary/20 rounded-md flex items-center justify-center">
-                    <span className="text-sm text-muted-foreground">Audio Waveform</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center p-8">
+              <p className="text-muted-foreground">{t('noTextRecords')}</p>
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="voice">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-40">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : voiceRecords.length > 0 ? (
+            <div className="grid gap-4">
+              {voiceRecords.map((record) => (
+                <Card key={record.id}>
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-lg">{record.title}</CardTitle>
+                      <div className="text-sm text-muted-foreground">
+                        {new Date(record.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="text-sm text-muted-foreground">
+                        {record.duration || t('unknown')}
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => downloadRecord(record)}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        {t('download')}
+                      </Button>
+                    </div>
+                    <div className="h-12 bg-secondary/20 rounded-md flex items-center justify-center">
+                      <span className="text-sm text-muted-foreground">{t('audioWaveform')}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center p-8">
+              <p className="text-muted-foreground">{t('noVoiceRecords')}</p>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </DashboardLayout>

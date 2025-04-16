@@ -9,7 +9,215 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      download_history: {
+        Row: {
+          download_type: string
+          downloaded_at: string | null
+          id: string
+          record_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          download_type: string
+          downloaded_at?: string | null
+          id?: string
+          record_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          download_type?: string
+          downloaded_at?: string | null
+          id?: string
+          record_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "download_history_record_id_fkey"
+            columns: ["record_id"]
+            isOneToOne: false
+            referencedRelation: "medical_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "download_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medical_records: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          duration: string | null
+          file_path: string | null
+          id: string
+          patient_id: string | null
+          record_type: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          duration?: string | null
+          file_path?: string | null
+          id?: string
+          patient_id?: string | null
+          record_type: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          duration?: string | null
+          file_path?: string | null
+          id?: string
+          patient_id?: string | null
+          record_type?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          age: number | null
+          created_at: string | null
+          email: string
+          id: string
+          last_login: string | null
+          name: string
+          role: Database["public"]["Enums"]["user_role"]
+          specialty: string | null
+        }
+        Insert: {
+          age?: number | null
+          created_at?: string | null
+          email: string
+          id: string
+          last_login?: string | null
+          name: string
+          role: Database["public"]["Enums"]["user_role"]
+          specialty?: string | null
+        }
+        Update: {
+          age?: number | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          last_login?: string | null
+          name?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          specialty?: string | null
+        }
+        Relationships: []
+      }
+      translation_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          original_language: string
+          original_text: string
+          sender_id: string | null
+          session_id: string | null
+          target_language: string
+          translated_text: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          original_language: string
+          original_text: string
+          sender_id?: string | null
+          session_id?: string | null
+          target_language: string
+          translated_text?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          original_language?: string
+          original_text?: string
+          sender_id?: string | null
+          session_id?: string | null
+          target_language?: string
+          translated_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "translation_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "translation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      translation_sessions: {
+        Row: {
+          created_at: string | null
+          doctor_id: string | null
+          ended_at: string | null
+          id: string
+          patient_id: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          doctor_id?: string | null
+          ended_at?: string | null
+          id?: string
+          patient_id?: string | null
+          status: string
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          doctor_id?: string | null
+          ended_at?: string | null
+          id?: string
+          patient_id?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_sessions_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "translation_sessions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +226,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "patient" | "doctor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +341,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["patient", "doctor"],
+    },
   },
 } as const

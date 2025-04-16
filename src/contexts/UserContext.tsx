@@ -1,5 +1,8 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { User as SupabaseUser, Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 export type UserRole = "patient" | "doctor";
 
@@ -18,7 +21,7 @@ type UserContextType = {
   setUser: (user: User | null) => void;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (userData: Partial<User> & { password: string }) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
 };
 
@@ -26,46 +29,113 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Check for saved user on mount
+  // Check for session and update user on mount
   useEffect(() => {
-    const savedUser = localStorage.getItem("fulamedUser");
-    if (savedUser) {
-      try {
-        const parsedUser = JSON.parse(savedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error("Failed to parse saved user", error);
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, currentSession) => {
+        setSession(currentSession);
+        
+        if (currentSession?.user) {
+          try {
+            // Fetch user profile from profiles table
+            const { data: profile, error } = await supabase
+              .from("profiles")
+              .select("*")
+              .eq("id", currentSession.user.id)
+              .maybeSingle();
+
+            if (error) {
+              console.error("Error fetching user profile:", error);
+              return;
+            }
+
+            if (profile) {
+              setUser({
+                id: profile.id,
+                name: profile.name,
+                email: profile.email,
+                role: profile.role,
+                age: profile.age,
+                specialty: profile.specialty,
+                lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
+              });
+            }
+          } catch (error) {
+            console.error("Failed to fetch profile data", error);
+          }
+        } else {
+          setUser(null);
+        }
       }
-    }
-    setIsLoading(false);
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      
+      if (currentSession?.user) {
+        setIsLoading(true);
+        try {
+          // Fetch user profile from profiles table
+          const { data: profile, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", currentSession.user.id)
+            .maybeSingle();
+
+          if (error) {
+            console.error("Error fetching user profile:", error);
+            return;
+          }
+
+          if (profile) {
+            setUser({
+              id: profile.id,
+              name: profile.name,
+              email: profile.email,
+              role: profile.role,
+              age: profile.age,
+              specialty: profile.specialty,
+              lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
+            });
+          }
+        } catch (error) {
+          console.error("Failed to fetch profile data", error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  // Save user to localStorage when it changes
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("fulamedUser", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("fulamedUser");
-    }
-  }, [user]);
-
-  // Mock login function until we integrate with Supabase
+  // Login function using Supabase authentication
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // This is a mock implementation
-      // We'll replace with real Supabase auth later
-      const mockUser: User = {
-        id: "123",
+      const { error } = await supabase.auth.signInWithPassword({
         email,
-        name: "Demo User",
-        role: email.includes("doctor") ? "doctor" : "patient",
-        lastLogin: new Date()
-      };
-      
-      setUser(mockUser);
+        password,
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Login failed",
+          description: error.message,
+        });
+        return false;
+      }
+
       return true;
     } catch (error) {
       console.error("Login failed", error);
@@ -75,23 +145,36 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Mock signup function
+  // Signup function with Supabase authentication
   const signup = async (userData: Partial<User> & { password: string }): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // This is a mock implementation
-      // We'll replace with real Supabase auth later
-      const newUser: User = {
-        id: Math.random().toString(36).substring(2, 9),
+      // Register user with Supabase Auth
+      const { error } = await supabase.auth.signUp({
         email: userData.email || "",
-        name: userData.name || "",
-        role: userData.role || "patient",
-        age: userData.age,
-        specialty: userData.specialty,
-        lastLogin: new Date()
-      };
+        password: userData.password,
+        options: {
+          data: {
+            name: userData.name,
+            role: userData.role || "patient",
+          },
+        },
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Signup failed",
+          description: error.message,
+        });
+        return false;
+      }
+
+      toast({
+        title: "Signup successful",
+        description: "Welcome to FulaMed! Please check your email to verify your account.",
+      });
       
-      setUser(newUser);
       return true;
     } catch (error) {
       console.error("Signup failed", error);
@@ -101,8 +184,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = () => {
-    setUser(null);
+  // Logout function
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
   };
 
   return (
