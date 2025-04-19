@@ -128,6 +128,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) {
+        console.error("Login error:", error);
         toast({
           variant: "destructive",
           title: "Login failed",
@@ -150,18 +151,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       // Register user with Supabase Auth
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: userData.email || "",
         password: userData.password,
         options: {
           data: {
             name: userData.name,
             role: userData.role || "patient",
+            ...(userData.age && { age: userData.age }),
+            ...(userData.specialty && { specialty: userData.specialty }),
           },
         },
       });
 
       if (error) {
+        console.error("Signup error:", error);
         toast({
           variant: "destructive",
           title: "Signup failed",
@@ -170,10 +174,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
 
-      toast({
-        title: "Signup successful",
-        description: "Welcome to FulaMed! Please check your email to verify your account.",
-      });
+      // Insert additional data into profiles table if needed
+      if (data.user) {
+        // The trigger should handle this automatically, but we can add manual handling if required
+        toast({
+          title: "Signup successful",
+          description: "Welcome to FulaMed! Please check your email to verify your account.",
+        });
+      }
       
       return true;
     } catch (error) {

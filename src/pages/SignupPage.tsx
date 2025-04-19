@@ -39,6 +39,14 @@ const SignupPage: React.FC = () => {
     { id: 'dentist', name: t('dentist') },
     { id: 'pediatrician', name: t('pediatrician') },
     { id: 'gynecologist', name: t('gynecologist') },
+    { id: 'cardiologist', name: t('cardiologist') },
+    { id: 'neurologist', name: t('neurologist') },
+    { id: 'dermatologist', name: t('dermatologist') },
+    { id: 'ophthalmologist', name: t('ophthalmologist') },
+    { id: 'psychiatrist', name: t('psychiatrist') },
+    { id: 'orthopedist', name: t('orthopedist') },
+    { id: 'radiologist', name: t('radiologist') },
+    { id: 'anesthesiologist', name: t('anesthesiologist') },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,6 +98,7 @@ const SignupPage: React.FC = () => {
         });
       }
     } catch (error) {
+      console.error("Signup error:", error);
       toast({
         variant: "destructive",
         title: "Something went wrong",
