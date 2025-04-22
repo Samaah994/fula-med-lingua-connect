@@ -58,13 +58,13 @@ const Index = () => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-10">
               {/* Left side content */}
               <div className="md:w-1/2 space-y-6">
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-                  {t('welcomeToFulaMed')}
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+                  FulaMed: Breaking Language Barriers in Healthcare
                 </h1>
-                <p className="text-lg md:text-xl text-gray-700 max-w-lg leading-relaxed">
-                  {t('landingPageDescription')}
+                <p className="text-lg text-gray-700 max-w-lg leading-relaxed">
+                  Connect patients and healthcare providers across language divides. Medical translations made simple.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <Button 
                     size="lg" 
                     className="text-base gap-2 h-12 px-6" 
@@ -87,10 +87,10 @@ const Index = () => {
               
               {/* Right side image */}
               <div className="md:w-1/2 flex justify-center">
-                <div className="relative w-full max-w-lg aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
+                <div className="relative w-full max-w-lg aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 shadow-lg">
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-primary/40 text-xl font-medium p-8 text-center">
-                      Bridging Language Barriers in Healthcare
+                    <div className="text-primary/80 text-xl font-medium p-8 text-center">
+                      Medical Translation Made Simple
                     </div>
                   </div>
                 </div>
@@ -100,24 +100,24 @@ const Index = () => {
         </section>
         
         {/* Features Section */}
-        <section className="py-16 px-4 md:px-8 bg-gradient-to-b from-background to-accent/10">
+        <section className="py-12 px-4 md:px-8 bg-gradient-to-b from-background to-accent/10">
           <div className="container mx-auto max-w-6xl">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-              {t('ourFeatures')}
+            <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">
+              Key Features
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FeatureCard 
-                title={t('featureTranslateTitle')} 
-                description={t('featureTranslateDesc')} 
+                title="Medical Translation" 
+                description="Accurate translation of medical terms and conversations between healthcare providers and patients." 
               />
               <FeatureCard 
-                title={t('featureMedicalTitle')} 
-                description={t('featureMedicalDesc')} 
+                title="Voice & Text Support" 
+                description="Communicate through both text and voice inputs for natural conversations." 
               />
               <FeatureCard 
-                title={t('featureConnectTitle')} 
-                description={t('featureConnectDesc')} 
+                title="Patient-Doctor Connect" 
+                description="Easily schedule appointments and maintain communication with healthcare providers." 
               />
             </div>
           </div>

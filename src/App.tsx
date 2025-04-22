@@ -14,6 +14,7 @@ import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
 import MedicalHistoryPage from "./pages/MedicalHistoryPage";
 import TranslatePage from "./pages/TranslatePage";
+import AppointmentsPage from "./pages/AppointmentsPage";
 import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 
@@ -70,6 +71,12 @@ const App = () => {
                 <Route path="/translate" element={
                   <ProtectedRoute>
                     <TranslatePage />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/appointments" element={
+                  <ProtectedRoute>
+                    <AppointmentsPage />
                   </ProtectedRoute>
                 } />
                 
