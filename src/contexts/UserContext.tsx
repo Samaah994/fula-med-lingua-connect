@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { User as SupabaseUser, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +33,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // Check for session and update user on mount
   useEffect(() => {
+    console.log("Setting up auth state listener...");
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
@@ -51,6 +51,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
             if (error) {
               console.error("Error fetching user profile:", error);
+              toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Failed to fetch user profile",
+              });
               return;
             }
 
@@ -64,11 +69,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 specialty: profile.specialty,
                 lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
               });
-            } else {
-              console.log("No profile found for user:", currentSession.user.id);
             }
           } catch (error) {
             console.error("Failed to fetch profile data", error);
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "Failed to load user data",
+            });
           }
         } else {
           setUser(null);
@@ -82,9 +90,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       setSession(currentSession);
       
       if (currentSession?.user) {
-        setIsLoading(true);
         try {
-          // Fetch user profile from profiles table
           const { data: profile, error } = await supabase
             .from("profiles")
             .select("*")
@@ -93,6 +99,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
           if (error) {
             console.error("Error fetching user profile:", error);
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "Failed to fetch user profile",
+            });
             return;
           }
 
@@ -106,11 +117,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
               specialty: profile.specialty,
               lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
             });
-          } else {
-            console.log("No profile found for user:", currentSession.user.id);
           }
         } catch (error) {
           console.error("Failed to fetch profile data", error);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to load user data",
+          });
         } finally {
           setIsLoading(false);
         }
@@ -123,6 +137,62 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Signup function with improved error handling
+  const signup = async (userData: Partial<User> & { password: string }): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      console.log("Signing up with data:", {
+        email: userData.email,
+        role: userData.role,
+        name: userData.name,
+      });
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: userData.email || "",
+        password: userData.password,
+        options: {
+          data: {
+            name: userData.name,
+            role: userData.role || "patient",
+            ...(userData.age && { age: userData.age }),
+            ...(userData.specialty && { specialty: userData.specialty }),
+          },
+        },
+      });
+
+      if (error) {
+        console.error("Signup error:", error);
+        toast({
+          variant: "destructive",
+          title: "Signup failed",
+          description: error.message,
+        });
+        return false;
+      }
+
+      if (data.user) {
+        console.log("User created successfully:", data.user.id);
+        toast({
+          title: "Signup successful",
+          description: "Welcome to FulaMed! Please check your email to verify your account.",
+        });
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error("Signup failed", error);
+      toast({
+        variant: "destructive",
+        title: "Signup failed",
+        description: "An unexpected error occurred. Please try again.",
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Login function using Supabase authentication
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -155,69 +225,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         variant: "destructive",
         title: "Login failed",
         description: "An unexpected error occurred. Please try again.",
-      });
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Signup function with Supabase authentication
-  const signup = async (userData: Partial<User> & { password: string }): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      console.log("Signing up with data:", { 
-        email: userData.email, 
-        role: userData.role, 
-        metadata: {
-          name: userData.name,
-          role: userData.role,
-          ...(userData.age && { age: userData.age }),
-          ...(userData.specialty && { specialty: userData.specialty }),
-        }
-      });
-      
-      // Register user with Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
-        email: userData.email || "",
-        password: userData.password,
-        options: {
-          data: {
-            name: userData.name,
-            role: userData.role || "patient",
-            ...(userData.age && { age: userData.age }),
-            ...(userData.specialty && { specialty: userData.specialty }),
-          },
-        },
-      });
-
-      if (error) {
-        console.error("Signup error:", error);
-        toast({
-          variant: "destructive",
-          title: "Signup failed",
-          description: error.message,
-        });
-        return false;
-      }
-
-      // Insert additional data into profiles table if needed
-      if (data.user) {
-        console.log("User created successfully:", data.user.id);
-        // The trigger should handle this automatically, but we can add manual handling if required
-        toast({
-          title: "Signup successful",
-          description: "Welcome to FulaMed! Please check your email to verify your account.",
-        });
-      }
-      
-      return true;
-    } catch (error) {
-      console.error("Signup failed", error);
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: "Please try again later.",
       });
       return false;
     } finally {

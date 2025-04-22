@@ -42,7 +42,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-primary/10 to-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-primary/5 to-background">
       {/* Header */}
       <header className="p-4 md:p-6 flex justify-between items-center">
         <Logo size="large" />
@@ -58,28 +58,28 @@ const Index = () => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-10">
               {/* Left side content */}
               <div className="md:w-1/2 space-y-6">
-                <h1 className="text-3xl md:text-5xl font-bold text-gray-800 leading-tight">
+                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
                   {t('welcomeToFulaMed')}
                 </h1>
-                <p className="text-lg text-gray-600 max-w-lg">
+                <p className="text-lg md:text-xl text-gray-700 max-w-lg leading-relaxed">
                   {t('landingPageDescription')}
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <div className="flex flex-col sm:flex-row gap-4 pt-6">
                   <Button 
                     size="lg" 
-                    className="gap-2" 
+                    className="text-base gap-2 h-12 px-6" 
                     onClick={handleLoginClick}
                   >
-                    <LogIn size={20} />
+                    <LogIn className="w-5 h-5" />
                     {t('login')}
                   </Button>
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="gap-2" 
+                    className="text-base gap-2 h-12 px-6" 
                     onClick={handleSignupClick}
                   >
-                    <UserPlus size={20} />
+                    <UserPlus className="w-5 h-5" />
                     {t('signup')}
                   </Button>
                 </div>
@@ -87,9 +87,11 @@ const Index = () => {
               
               {/* Right side image */}
               <div className="md:w-1/2 flex justify-center">
-                <div className="relative w-full max-w-md h-80 md:h-96 bg-accent rounded-xl overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center text-primary/30 text-xl font-medium">
-                    Medical Illustration
+                <div className="relative w-full max-w-lg aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-primary/40 text-xl font-medium p-8 text-center">
+                      Bridging Language Barriers in Healthcare
+                    </div>
                   </div>
                 </div>
               </div>
@@ -98,13 +100,13 @@ const Index = () => {
         </section>
         
         {/* Features Section */}
-        <section className="py-12 px-4 md:px-8 bg-gradient-to-b from-white to-accent/30">
+        <section className="py-16 px-4 md:px-8 bg-gradient-to-b from-background to-accent/10">
           <div className="container mx-auto max-w-6xl">
-            <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
               {t('ourFeatures')}
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <FeatureCard 
                 title={t('featureTranslateTitle')} 
                 description={t('featureTranslateDesc')} 
@@ -123,26 +125,23 @@ const Index = () => {
       </main>
       
       {/* Footer */}
-      <footer className="py-6 px-4 bg-primary/5 text-center">
-        <p className="text-gray-600">&copy; 2025 FulaMed. {t('allRightsReserved')}</p>
+      <footer className="py-6 px-4 bg-accent/5">
+        <p className="text-center text-gray-600">&copy; 2025 FulaMed. {t('allRightsReserved')}</p>
       </footer>
     </div>
   );
 };
 
-// Feature card component
 const FeatureCard = ({ title, description }: { title: string; description: string }) => {
   const { t } = useLanguage();
   
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100">
-      <h3 className="text-xl font-bold text-gray-800 mb-3">{title}</h3>
-      <p className="text-gray-600">{description}</p>
-      <div className="mt-4 flex justify-end">
-        <Button variant="ghost" size="sm" className="text-primary font-medium">
-          {t('learnMore')} <ArrowRight size={16} className="ml-1" />
-        </Button>
-      </div>
+    <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+      <h3 className="text-xl font-semibold text-gray-900 mb-3">{title}</h3>
+      <p className="text-gray-600 mb-4 leading-relaxed">{description}</p>
+      <Button variant="ghost" size="sm" className="text-primary font-medium">
+        {t('learnMore')} <ArrowRight className="w-4 h-4 ml-1" />
+      </Button>
     </div>
   );
 };
