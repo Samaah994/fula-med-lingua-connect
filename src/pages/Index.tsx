@@ -102,16 +102,20 @@ const Index = () => {
 };
 
 // Feature card component
-const FeatureCard = ({ title, description }: { title: string; description: string }) => (
-  <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100">
-    <h3 className="text-xl font-semibold text-primary mb-3">{title}</h3>
-    <p className="text-gray-600">{description}</p>
-    <div className="mt-4 flex justify-end">
-      <Button variant="ghost" size="sm" className="text-primary">
-        {t('learnMore')} <ArrowRight size={16} className="ml-1" />
-      </Button>
+const FeatureCard = ({ title, description }: { title: string; description: string }) => {
+  const { t } = useLanguage(); // Add this line to access the t function in the FeatureCard component
+  
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100">
+      <h3 className="text-xl font-semibold text-primary mb-3">{title}</h3>
+      <p className="text-gray-600">{description}</p>
+      <div className="mt-4 flex justify-end">
+        <Button variant="ghost" size="sm" className="text-primary">
+          {t('learnMore')} <ArrowRight size={16} className="ml-1" />
+        </Button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default Index;
