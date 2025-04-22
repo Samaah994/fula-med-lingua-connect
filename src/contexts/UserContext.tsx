@@ -37,6 +37,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
+        console.log("Auth state changed:", event, currentSession?.user?.id);
         setSession(currentSession);
         
         if (currentSession?.user) {
@@ -63,6 +64,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 specialty: profile.specialty,
                 lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
               });
+            } else {
+              console.log("No profile found for user:", currentSession.user.id);
             }
           } catch (error) {
             console.error("Failed to fetch profile data", error);
@@ -75,6 +78,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     // THEN check for existing session
     supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
+      console.log("Checking for existing session:", currentSession?.user?.id);
       setSession(currentSession);
       
       if (currentSession?.user) {
@@ -102,6 +106,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
               specialty: profile.specialty,
               lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
             });
+          } else {
+            console.log("No profile found for user:", currentSession.user.id);
           }
         } catch (error) {
           console.error("Failed to fetch profile data", error);
@@ -122,7 +128,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -137,9 +143,19 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
 
+      console.log("Login successful:", data.user?.id);
+      toast({
+        title: "Login successful",
+        description: "Welcome back to FulaMed!",
+      });
       return true;
     } catch (error) {
       console.error("Login failed", error);
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: "An unexpected error occurred. Please try again.",
+      });
       return false;
     } finally {
       setIsLoading(false);
@@ -150,6 +166,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const signup = async (userData: Partial<User> & { password: string }): Promise<boolean> => {
     setIsLoading(true);
     try {
+      console.log("Signing up with data:", { 
+        email: userData.email, 
+        role: userData.role, 
+        metadata: {
+          name: userData.name,
+          role: userData.role,
+          ...(userData.age && { age: userData.age }),
+          ...(userData.specialty && { specialty: userData.specialty }),
+        }
+      });
+      
       // Register user with Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email: userData.email || "",
@@ -176,6 +203,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       // Insert additional data into profiles table if needed
       if (data.user) {
+        console.log("User created successfully:", data.user.id);
         // The trigger should handle this automatically, but we can add manual handling if required
         toast({
           title: "Signup successful",
@@ -186,6 +214,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       return true;
     } catch (error) {
       console.error("Signup failed", error);
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "Please try again later.",
+      });
       return false;
     } finally {
       setIsLoading(false);
@@ -197,8 +230,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       await supabase.auth.signOut();
       setUser(null);
+      toast({
+        title: "Logout successful",
+        description: "You have been logged out successfully.",
+      });
     } catch (error) {
       console.error("Logout failed", error);
+      toast({
+        variant: "destructive",
+        title: "Logout failed",
+        description: "An error occurred while logging out.",
+      });
     }
   };
 
