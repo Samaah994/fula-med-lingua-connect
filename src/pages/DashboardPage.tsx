@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -13,11 +12,6 @@ const DashboardPage: React.FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
   
-  const formatDate = (date?: Date) => {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleString();
-  };
-
   return (
     <DashboardLayout title={t('dashboard')}>
       {user?.role === 'doctor' ? (
@@ -29,11 +23,15 @@ const DashboardPage: React.FC = () => {
   );
 };
 
+const formatDate = (date?: Date) => {
+  if (!date) return 'N/A';
+  return new Date(date).toLocaleString();
+};
+
 const DoctorDashboard = ({ user }: { user: any }) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   
-  // Mock data for doctor dashboard
   const upcomingAppointments = [
     { id: '1', patient: 'John Doe', time: '10:30 AM', date: 'Apr 25, 2025', reason: 'Regular check-up' },
     { id: '2', patient: 'Jane Smith', time: '2:00 PM', date: 'Apr 28, 2025', reason: 'Follow-up consultation' },
@@ -180,7 +178,6 @@ const PatientDashboard = ({ user }: { user: any }) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   
-  // Mock data for patient dashboard
   const upcomingAppointment = {
     doctor: 'Dr. Sarah Johnson',
     specialty: 'General Practitioner',
