@@ -1,5 +1,5 @@
 
-import { useEffect, memo } from 'react';
+import { useEffect, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { Loader2, LogIn, UserPlus, ArrowRight } from 'lucide-react';
@@ -31,7 +31,7 @@ const Index = () => {
   const { user, isLoading } = useUser();
   const { t } = useLanguage();
 
-  // This effect will only run once on mount and when dependencies change
+  // This effect will only run when dependencies change
   useEffect(() => {
     if (!isLoading && user) {
       navigate('/dashboard');
@@ -39,8 +39,8 @@ const Index = () => {
   }, [navigate, user, isLoading]);
 
   // Memoized event handlers to prevent recreation on each render
-  const handleLoginClick = () => navigate('/login');
-  const handleSignupClick = () => navigate('/signup');
+  const handleLoginClick = useCallback(() => navigate('/login'), [navigate]);
+  const handleSignupClick = useCallback(() => navigate('/signup'), [navigate]);
 
   if (isLoading) {
     return (
@@ -58,7 +58,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-primary/5 to-background">
-      {/* Header - optimized */}
+      {/* Header */}
       <header className="p-4 md:p-6 flex justify-between items-center">
         <Logo size="large" />
         <div className="flex items-center gap-2">
@@ -100,13 +100,11 @@ const Index = () => {
                 </div>
               </div>
               
-              {/* Right side image - simplified */}
+              {/* Right side image - simplified to basic shape to reduce rendering load */}
               <div className="md:w-1/2 flex justify-center">
-                <div className="relative w-full max-w-lg aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 shadow-lg">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-primary/80 text-xl font-medium p-8 text-center">
-                      Medical Translation Made Simple
-                    </div>
+                <div className="relative w-full max-w-lg aspect-square rounded-2xl bg-primary/10 shadow-md flex items-center justify-center">
+                  <div className="text-primary/80 text-xl font-medium p-8 text-center">
+                    Medical Translation Made Simple
                   </div>
                 </div>
               </div>

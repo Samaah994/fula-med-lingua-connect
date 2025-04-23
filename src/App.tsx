@@ -21,13 +21,10 @@ const TranslatePage = lazy(() => import("./pages/TranslatePage"));
 const AppointmentsPage = lazy(() => import("./pages/AppointmentsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Loading fallback component
+// Loading fallback component - simplified for faster rendering
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-      <p className="mt-4 text-gray-600">Loading...</p>
-    </div>
+    <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
   </div>
 );
 
@@ -52,7 +49,7 @@ const App = () => {
     defaultOptions: {
       queries: {
         staleTime: 60000, // 1 minute
-        gcTime: 300000, // 5 minutes (previously called cacheTime)
+        gcTime: 300000, // 5 minutes
         retry: 1, // Reduce retry attempts
         refetchOnWindowFocus: false, // Prevent unnecessary refetches
       },
@@ -104,7 +101,7 @@ const App = () => {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
-              {/* Positioning Toaster components outside of Suspense for better responsiveness */}
+              {/* Position Toaster components outside of Suspense for better responsiveness */}
               <Toaster />
               <Sonner />
             </BrowserRouter>
