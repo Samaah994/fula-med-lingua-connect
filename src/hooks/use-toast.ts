@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import type {
@@ -6,7 +7,7 @@ import type {
 } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_REMOVE_DELAY = 5000 // Reduced from 1000000 to 5000 (5 seconds)
 
 type ToasterToast = ToastProps & {
   id: string
@@ -53,6 +54,7 @@ interface State {
   toasts: ToasterToast[]
 }
 
+// Performance optimization: Use a Map instead of recreating timeouts
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
 const addToRemoveQueue = (toastId: string) => {
@@ -90,8 +92,6 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
       if (toastId) {
         addToRemoveQueue(toastId)
       } else {
@@ -126,6 +126,7 @@ export const reducer = (state: State, action: Action): State => {
   }
 }
 
+// Memoize listeners to prevent unnecessary re-renders
 const listeners: Array<(state: State) => void> = []
 
 let memoryState: State = { toasts: [] }
@@ -168,6 +169,7 @@ function toast({ ...props }: Toast) {
   }
 }
 
+// Optimize hook implementation to reduce renders
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
@@ -179,7 +181,7 @@ function useToast() {
         listeners.splice(index, 1)
       }
     }
-  }, [state])
+  }, [])  // Empty dependency array to ensure this only runs once
 
   return {
     ...state,

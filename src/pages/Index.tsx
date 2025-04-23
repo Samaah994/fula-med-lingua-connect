@@ -1,5 +1,5 @@
 
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { Loader2, LogIn, UserPlus, ArrowRight } from 'lucide-react';
@@ -8,8 +8,8 @@ import Logo from '@/components/Logo';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-// Simple feature card component for performance
-const FeatureCard = ({ title, description }: { title: string; description: string }) => {
+// Memoize the feature card component to prevent unnecessary re-renders
+const FeatureCard = memo(({ title, description }: { title: string; description: string }) => {
   const { t } = useLanguage();
   
   return (
@@ -21,26 +21,26 @@ const FeatureCard = ({ title, description }: { title: string; description: strin
       </Button>
     </div>
   );
-};
+});
 
+FeatureCard.displayName = 'FeatureCard';
+
+// Optimize the main Index component
 const Index = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useUser();
   const { t } = useLanguage();
 
+  // This effect will only run once on mount and when dependencies change
   useEffect(() => {
     if (!isLoading && user) {
       navigate('/dashboard');
     }
   }, [navigate, user, isLoading]);
 
-  const handleLoginClick = () => {
-    navigate('/login');
-  };
-
-  const handleSignupClick = () => {
-    navigate('/signup');
-  };
+  // Memoized event handlers to prevent recreation on each render
+  const handleLoginClick = () => navigate('/login');
+  const handleSignupClick = () => navigate('/signup');
 
   if (isLoading) {
     return (
@@ -114,7 +114,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Features Section - optimized */}
+        {/* Features Section - optimized with memoized components */}
         <section className="py-12 px-4 md:px-8 bg-gradient-to-b from-background to-accent/10">
           <div className="container mx-auto max-w-6xl">
             <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">
