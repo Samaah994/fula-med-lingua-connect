@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -33,18 +34,23 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
-  // Create a new QueryClient instance
-  const [queryClient] = useState(() => new QueryClient());
+  // Create a new QueryClient instance with optimized settings
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60000, // 1 minute
+        cacheTime: 300000, // 5 minutes
+        retry: 1, // Reduce retry attempts
+      },
+    },
+  }));
 
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <UserProvider>
           <TooltipProvider>
-            {/* Move Toaster components here, outside BrowserRouter */}
             <BrowserRouter>
-              <Toaster />
-              <Sonner />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<LoginPage />} />
@@ -82,6 +88,8 @@ const App = () => {
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <Toaster />
+              <Sonner />
             </BrowserRouter>
           </TooltipProvider>
         </UserProvider>

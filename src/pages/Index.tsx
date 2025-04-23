@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { Loader2, LogIn, UserPlus, ArrowRight } from 'lucide-react';
@@ -7,6 +7,21 @@ import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/contexts/LanguageContext';
+
+// Simple feature card component for performance
+const FeatureCard = ({ title, description }: { title: string; description: string }) => {
+  const { t } = useLanguage();
+  
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+      <h3 className="text-xl font-semibold text-gray-900 mb-3">{title}</h3>
+      <p className="text-gray-600 mb-4 leading-relaxed">{description}</p>
+      <Button variant="ghost" size="sm" className="text-primary font-medium">
+        {t('learnMore')} <ArrowRight className="w-4 h-4 ml-1" />
+      </Button>
+    </div>
+  );
+};
 
 const Index = () => {
   const navigate = useNavigate();
@@ -43,7 +58,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-primary/5 to-background">
-      {/* Header */}
+      {/* Header - optimized */}
       <header className="p-4 md:p-6 flex justify-between items-center">
         <Logo size="large" />
         <div className="flex items-center gap-2">
@@ -51,7 +66,7 @@ const Index = () => {
         </div>
       </header>
       
-      {/* Hero Section */}
+      {/* Hero Section - simplified for performance */}
       <main className="flex-1 flex flex-col">
         <section className="py-8 md:py-16 px-4 md:px-8">
           <div className="container mx-auto max-w-6xl">
@@ -85,7 +100,7 @@ const Index = () => {
                 </div>
               </div>
               
-              {/* Right side image */}
+              {/* Right side image - simplified */}
               <div className="md:w-1/2 flex justify-center">
                 <div className="relative w-full max-w-lg aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 shadow-lg">
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -99,7 +114,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Features Section */}
+        {/* Features Section - optimized */}
         <section className="py-12 px-4 md:px-8 bg-gradient-to-b from-background to-accent/10">
           <div className="container mx-auto max-w-6xl">
             <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">
@@ -124,24 +139,10 @@ const Index = () => {
         </section>
       </main>
       
-      {/* Footer */}
+      {/* Footer - simplified */}
       <footer className="py-6 px-4 bg-accent/5">
         <p className="text-center text-gray-600">&copy; 2025 FulaMed. {t('allRightsReserved')}</p>
       </footer>
-    </div>
-  );
-};
-
-const FeatureCard = ({ title, description }: { title: string; description: string }) => {
-  const { t } = useLanguage();
-  
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
-      <h3 className="text-xl font-semibold text-gray-900 mb-3">{title}</h3>
-      <p className="text-gray-600 mb-4 leading-relaxed">{description}</p>
-      <Button variant="ghost" size="sm" className="text-primary font-medium">
-        {t('learnMore')} <ArrowRight className="w-4 h-4 ml-1" />
-      </Button>
     </div>
   );
 };
