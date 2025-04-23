@@ -35,11 +35,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => {
   // Create a new QueryClient instance with optimized settings
+  // Note: In @tanstack/react-query v5, 'cacheTime' was renamed to 'gcTime'
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
         staleTime: 60000, // 1 minute
-        cacheTime: 300000, // 5 minutes
+        gcTime: 300000, // 5 minutes (previously called cacheTime)
         retry: 1, // Reduce retry attempts
       },
     },
