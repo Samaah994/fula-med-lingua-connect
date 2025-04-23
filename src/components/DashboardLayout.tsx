@@ -1,5 +1,5 @@
 
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, FileText, User, LogOut, MessageSquare, Calendar, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,27 @@ interface DashboardLayoutProps {
   children: ReactNode;
   title: string;
 }
+
+// Memoized navigation item to prevent re-renders
+const NavItem = memo(({ icon: Icon, label, path, onClick }: { 
+  icon: React.ElementType, 
+  label: string, 
+  path: string, 
+  onClick: () => void 
+}) => (
+  <li>
+    <Button
+      variant="ghost"
+      className="w-full justify-start md:px-3 md:py-2 lg:px-4 lg:py-2"
+      onClick={onClick}
+    >
+      <Icon className="h-5 w-5 shrink-0 mr-0 md:mr-0 lg:mr-2" />
+      <span className="lg:inline hidden">{label}</span>
+    </Button>
+  </li>
+));
+
+NavItem.displayName = "NavItem";
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) => {
   const { t } = useLanguage();
@@ -33,13 +54,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
     { icon: Calendar, label: t('appointments'), path: '/appointments' },
   ];
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setMobileMenuOpen(false);
   };
 
   return (
     <div className="min-h-screen bg-accent/30 flex flex-col">
-      {/* Header */}
+      {/* Simplified header */}
       <header className="bg-white shadow-sm p-4 z-20 relative">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center">
@@ -47,34 +69,21 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
               variant="ghost" 
               size="icon" 
               className="mr-2 md:hidden" 
-              onClick={toggleMobileMenu}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               <span className="sr-only">Toggle menu</span>
             </Button>
             <Logo />
           </div>
-          <div className="flex items-center gap-4">
-            {user && (
-              <div className="text-sm hidden sm:block">
-                <span className="block font-medium">{user.name}</span>
-                <span className="block text-muted-foreground text-xs">
-                  {t(user.role)}
-                </span>
-              </div>
-            )}
+          <div className="flex items-center gap-2">
             <LanguageSwitcher />
           </div>
         </div>
       </header>
 
-      {/* Main content */}
       <div className="flex flex-1 relative">
-        {/* Mobile menu overlay */}
+        {/* Mobile menu overlay - simplified */}
         {mobileMenuOpen && (
           <div 
             className="fixed inset-0 bg-black/20 z-10 md:hidden"
@@ -82,37 +91,29 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
           />
         )}
         
-        {/* Sidebar */}
+        {/* Simplified sidebar */}
         <aside className={cn(
-          "bg-white w-64 shadow-sm flex flex-col fixed inset-y-0 pt-16 z-10 transition-transform duration-300 ease-in-out",
+          "bg-white w-64 shadow-sm flex flex-col fixed inset-y-0 pt-16 z-10 transition-transform",
           "md:static md:translate-x-0 md:pt-0 md:w-20 lg:w-64",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <nav className="flex-1 p-4 overflow-y-auto">
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {menuItems.map((item) => (
-                <li key={item.path}>
-                  <Button
-                    variant="ghost"
-                    className={cn("w-full justify-start", 
-                      "md:px-3 md:py-2 lg:px-4 lg:py-2"
-                    )}
-                    onClick={() => {
-                      navigate(item.path);
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    <item.icon className="h-5 w-5 shrink-0 mr-0 md:mr-0 lg:mr-2" />
-                    <span className="lg:inline hidden">{item.label}</span>
-                  </Button>
-                </li>
+                <NavItem 
+                  key={item.path} 
+                  icon={item.icon} 
+                  label={item.label} 
+                  path={item.path} 
+                  onClick={() => handleNavigation(item.path)} 
+                />
               ))}
             </ul>
           </nav>
           <div className="p-4 border-t">
             <Button 
               variant="ghost" 
-              className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="w-full justify-start text-destructive hover:bg-destructive/10"
               onClick={handleLogout}
             >
               <LogOut className="h-5 w-5 shrink-0 mr-0 md:mr-0 lg:mr-2" />
@@ -121,16 +122,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
           </div>
         </aside>
 
-        {/* Content */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 pt-4 md:ml-20 lg:ml-64">
-          <div className="container mx-auto max-w-6xl">
-            <h1 className="text-2xl font-bold mb-6">{title}</h1>
-            {children}
-          </div>
+        {/* Main content */}
+        <main className="flex-1 p-4 pt-4 md:ml-20 lg:ml-64">
+          <h1 className="text-2xl font-bold mb-4">{title}</h1>
+          {children}
         </main>
       </div>
     </div>
   );
 };
 
-export default DashboardLayout;
+export default React.memo(DashboardLayout);

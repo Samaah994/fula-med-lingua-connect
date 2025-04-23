@@ -21,14 +21,14 @@ const TranslatePage = lazy(() => import("./pages/TranslatePage"));
 const AppointmentsPage = lazy(() => import("./pages/AppointmentsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Loading fallback component - simplified for faster rendering
+// Ultra-simplified loading fallback for faster rendering
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
-    <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+    <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
   </div>
 );
 
-// Protected route component
+// Protected route component with improved performance
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useUser();
   
@@ -44,14 +44,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
-  // Optimize QueryClient with better defaults for performance
+  // Create QueryClient with aggressive performance settings
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 60000, // 1 minute
+        staleTime: 120000, // 2 minutes
         gcTime: 300000, // 5 minutes
-        retry: 1, // Reduce retry attempts
-        refetchOnWindowFocus: false, // Prevent unnecessary refetches
+        retry: 0, // No retries for faster failure
+        refetchOnWindowFocus: false,
+        refetchOnMount: false, // Prevent refetching when components mount
       },
     },
   }));
@@ -101,7 +102,6 @@ const App = () => {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
-              {/* Position Toaster components outside of Suspense for better responsiveness */}
               <Toaster />
               <Sonner />
             </BrowserRouter>

@@ -6,29 +6,30 @@ interface LogoProps {
   size?: 'small' | 'medium' | 'large';
 }
 
+// Simplified Logo component
 const Logo: React.FC<LogoProps> = ({ size = 'medium' }) => {
   const { t } = useLanguage();
   
   const sizeClasses = {
-    small: 'h-8 w-8',
-    medium: 'h-12 w-12',
-    large: 'h-16 w-16',
+    small: 'h-6 w-6',
+    medium: 'h-8 w-8',
+    large: 'h-10 w-10',
   };
   
   const textSizes = {
-    small: 'text-lg',
-    medium: 'text-xl',
-    large: 'text-2xl',
+    small: 'text-sm',
+    medium: 'text-base',
+    large: 'text-lg',
   };
 
   return (
     <div className="flex items-center gap-2">
       <div className={`rounded-full bg-primary flex items-center justify-center text-white font-bold ${sizeClasses[size]}`}>
-        <span>FM</span>
+        <span>F</span>
       </div>
       <span className={`font-bold text-primary ${textSizes[size]}`}>FulaMed</span>
     </div>
   );
 };
 
-export default Logo;
+export default React.memo(Logo);
