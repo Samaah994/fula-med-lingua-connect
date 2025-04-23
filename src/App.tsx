@@ -104,6 +104,7 @@ const App = () => {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
+              {/* Positioning Toaster components outside of Suspense for better responsiveness */}
               <Toaster />
               <Sonner />
             </BrowserRouter>
