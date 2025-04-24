@@ -91,7 +91,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-300;
   }
 }
 
@@ -103,6 +103,14 @@
   
   .text-pretty {
     text-wrap: pretty;
+  }
+  
+  .glass-morphism {
+    @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3)];
+  }
+  
+  .dark .glass-morphism {
+    @apply backdrop-blur-xl bg-black/20 border border-white/5 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.5)];
   }
 }
 

@@ -9,10 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import DashboardLayout from '@/components/DashboardLayout';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
 
 const TranslatePage: React.FC = () => {
   const { t, language } = useLanguage();
+  const { theme } = useTheme();
   const { user } = useUser();
   
   return (
@@ -119,7 +121,7 @@ const TextTranslation: React.FC = () => {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder={t('enterTextToTranslate')}
-              className="min-h-32"
+              className="min-h-32 dark:bg-gray-800"
             />
           </div>
           
@@ -135,7 +137,7 @@ const TextTranslation: React.FC = () => {
               value={outputText}
               readOnly
               placeholder={t('translationWillAppearHere')}
-              className="min-h-32"
+              className="min-h-32 dark:bg-gray-800"
             />
           </div>
         </div>
@@ -360,7 +362,7 @@ const VoiceTranslation: React.FC = () => {
                 value={transcription}
                 readOnly
                 placeholder={t('speechWillAppearHere')}
-                className="min-h-24"
+                className="min-h-24 dark:bg-gray-800"
               />
             </div>
             
@@ -380,7 +382,7 @@ const VoiceTranslation: React.FC = () => {
                 value={translation}
                 readOnly
                 placeholder={t('translationWillAppearHere')}
-                className="min-h-24"
+                className="min-h-24 dark:bg-gray-800"
               />
             </div>
           </div>

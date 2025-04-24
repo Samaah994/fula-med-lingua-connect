@@ -18,6 +18,7 @@ import { useToast } from '@/components/ui/use-toast';
 import DashboardLayout from '@/components/DashboardLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useUser, UserRole } from '@/contexts/UserContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Define theme type
 type Theme = 'light' | 'dark';
@@ -26,6 +27,7 @@ const ProfilePage: React.FC = () => {
   const { t } = useLanguage();
   const { user, setUser } = useUser();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
   
   const [name, setName] = useState(user?.name || '');
   const [age, setAge] = useState<number | undefined>(user?.age);
@@ -33,11 +35,6 @@ const ProfilePage: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   // Settings state
-  const [theme, setTheme] = useState<Theme>(() => {
-    // Check for saved theme preference in localStorage
-    const savedTheme = localStorage.getItem('theme');
-    return (savedTheme as Theme) || 'light';
-  });
   const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
     // Check for saved sound preference in localStorage
     const savedSound = localStorage.getItem('soundEnabled');
@@ -48,17 +45,6 @@ const ProfilePage: React.FC = () => {
     const savedVolume = localStorage.getItem('volume');
     return savedVolume ? parseInt(savedVolume, 10) : 80;
   });
-
-  // Effect to apply theme
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
 
   // Effect to save sound settings
   useEffect(() => {
@@ -94,10 +80,12 @@ const ProfilePage: React.FC = () => {
   };
 
   const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    
     toast({
       title: "Theme updated",
-      description: `Switched to ${theme === 'light' ? 'dark' : 'light'} theme.`,
+      description: `Switched to ${newTheme} theme.`,
     });
   };
 

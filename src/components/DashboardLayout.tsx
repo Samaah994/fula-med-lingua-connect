@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +38,7 @@ NavItem.displayName = "NavItem";
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const { user, logout } = useUser();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -81,16 +83,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
 
   if (!isReady) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center dark:bg-gray-900">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-accent/30 flex flex-col">
+    <div className="min-h-screen bg-accent/30 dark:bg-gray-900 flex flex-col transition-colors duration-300">
       {/* Simplified header */}
-      <header className="bg-white shadow-sm p-4 z-20 relative">
+      <header className="bg-white dark:bg-gray-800 shadow-sm p-4 z-20 relative transition-colors duration-300">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center">
             <Button 
@@ -114,14 +116,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
         {/* Mobile menu overlay - simplified */}
         {mobileMenuOpen && (
           <div 
-            className="fixed inset-0 bg-black/20 z-10 md:hidden"
+            className="fixed inset-0 bg-black/20 dark:bg-black/50 z-10 md:hidden transition-colors duration-300"
             onClick={() => setMobileMenuOpen(false)}
           />
         )}
         
         {/* Simplified sidebar */}
         <aside className={cn(
-          "bg-white w-64 shadow-sm flex flex-col fixed inset-y-0 pt-16 z-10 transition-transform",
+          "bg-white dark:bg-gray-800 w-64 shadow-sm flex flex-col fixed inset-y-0 pt-16 z-10 transition-all duration-300",
           "md:static md:translate-x-0 md:pt-0 md:w-20 lg:w-64",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}>
@@ -138,7 +140,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
               ))}
             </ul>
           </nav>
-          <div className="p-4 border-t">
+          <div className="p-4 border-t dark:border-gray-700 transition-colors duration-300">
             <Button 
               variant="ghost" 
               className="w-full justify-start text-destructive hover:bg-destructive/10"
@@ -151,7 +153,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 p-4 pt-4 md:ml-20 lg:ml-64">
+        <main className="flex-1 p-4 pt-4 md:ml-20 lg:ml-64 transition-all duration-300">
           <h1 className="text-2xl font-bold mb-4">{title}</h1>
           {children}
         </main>

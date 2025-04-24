@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, ReactNode } from "react";
 
 // Define available languages
@@ -269,6 +268,96 @@ export const translations: TranslationDict = {
     en: "Translate from Fulfulde",
     ff: "Firtu iwde e Fulfulde",
     fr: "Traduire du Fulfulde"
+  },
+  theme: {
+    en: "Theme",
+    ff: "Mbayka",
+    fr: "Thème"
+  },
+  lightTheme: {
+    en: "Light Theme",
+    ff: "Mbayka Jalbunde",
+    fr: "Thème Clair"
+  },
+  darkTheme: {
+    en: "Dark Theme",
+    ff: "Mbayka Niɓɓunde",
+    fr: "Thème Sombre"
+  },
+  switchToLight: {
+    en: "Switch to Light",
+    ff: "Waylit to Jalbunde",
+    fr: "Passer au Clair"
+  },
+  switchToDark: {
+    en: "Switch to Dark",
+    ff: "Waylit to Niɓɓunde",
+    fr: "Passer au Sombre"
+  },
+  sound: {
+    en: "Sound",
+    ff: "Sawto",
+    fr: "Son"
+  },
+  soundOn: {
+    en: "Sound On",
+    ff: "Sawto Udditaama",
+    fr: "Son Activé"
+  },
+  soundOff: {
+    en: "Sound Off",
+    ff: "Sawto Uddaama",
+    fr: "Son Désactivé"
+  },
+  volume: {
+    en: "Volume",
+    ff: "Toowngal Sawto",
+    fr: "Volume"
+  },
+  applicationSettings: {
+    en: "Application Settings",
+    ff: "Teelte Jaaynde",
+    fr: "Paramètres de l'Application"
+  },
+  textTranslation: {
+    en: "Text Translation",
+    ff: "Firtugol Binndol",
+    fr: "Traduction de Texte"
+  },
+  voiceTranslation: {
+    en: "Voice Translation",
+    ff: "Firtugol Daande",
+    fr: "Traduction Vocale"
+  },
+  transcription: {
+    en: "Transcription",
+    ff: "Winnditannde",
+    fr: "Transcription"
+  },
+  recording: {
+    en: "Recording",
+    ff: "Ina nanngitoo",
+    fr: "Enregistrement"
+  },
+  tapToStartRecording: {
+    en: "Tap to start recording",
+    ff: "Tappu ngam fuɗɗaade nanngitaade",
+    fr: "Appuyez pour commencer l'enregistrement"
+  },
+  microphoneAccessDenied: {
+    en: "Microphone access denied",
+    ff: "Duŋaaki to maakirofoŋ salaama",
+    fr: "Accès au microphone refusé"
+  },
+  speechWillAppearHere: {
+    en: "Speech will appear here",
+    ff: "Konngol ma wanngo ɗoo",
+    fr: "La parole apparaîtra ici"
+  },
+  playAudio: {
+    en: "Play Audio",
+    ff: "Nanno Ojoo",
+    fr: "Lire l'Audio"
   }
 };
 
