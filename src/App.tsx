@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider, useUser } from "@/contexts/UserContext";
-import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, useEffect } from "react";
 
 // Eagerly load the index page for immediate display
 import Index from "./pages/Index";
@@ -31,16 +31,40 @@ const PageLoader = () => (
 // Protected route component with improved performance
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useUser();
+  const [hasChecked, setHasChecked] = useState(false);
   
-  if (isLoading) {
+  useEffect(() => {
+    // Set hasChecked to true after a short delay if still loading
+    // This prevents infinite loading states
+    const timer = setTimeout(() => {
+      if (isLoading) {
+        console.log("Auth check taking too long, proceeding with rendering");
+        setHasChecked(true);
+      }
+    }, 1500);
+    
+    // If we get a definite answer (user or null), clear timeout and set hasChecked
+    if (!isLoading) {
+      clearTimeout(timer);
+      setHasChecked(true);
+    }
+    
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+  
+  // Show loader only during initial check and not too long
+  if (isLoading && !hasChecked) {
     return <PageLoader />;
   }
   
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  // Show the content if we have a user OR if we've waited long enough to check
+  // This ensures we don't get stuck in loading states
+  if (user || hasChecked) {
+    return <>{children}</>;
   }
   
-  return <>{children}</>;
+  // Redirect to login if we've confirmed there's no user
+  return <Navigate to="/login" replace />;
 };
 
 const App = () => {

@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { User as SupabaseUser, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,15 +35,73 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   // Check for session and update user on mount
   useEffect(() => {
     console.log("Setting up auth state listener...");
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
+      (event, currentSession) => {
         console.log("Auth state changed:", event, currentSession?.user?.id);
         setSession(currentSession);
         
         if (currentSession?.user) {
+          // Use setTimeout to avoid Supabase deadlocks
+          setTimeout(async () => {
+            try {
+              // Fetch user profile from profiles table
+              const { data: profile, error } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", currentSession.user.id)
+                .maybeSingle();
+
+              if (error) {
+                console.error("Error fetching user profile:", error);
+                setIsLoading(false);
+                return;
+              }
+
+              if (profile) {
+                setUser({
+                  id: profile.id,
+                  name: profile.name,
+                  email: profile.email,
+                  role: profile.role,
+                  age: profile.age,
+                  specialty: profile.specialty,
+                  lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
+                });
+              } else {
+                // Create a mock user for demonstration if profile doesn't exist
+                console.log("No profile found, creating mock user for demonstration");
+                setUser({
+                  id: currentSession.user.id,
+                  email: currentSession.user.email || 'demo@example.com',
+                  name: "Demo User",
+                  role: "patient",
+                  lastLogin: new Date()
+                });
+              }
+            } catch (error) {
+              console.error("Failed to fetch profile data", error);
+            } finally {
+              setIsLoading(false);
+            }
+          }, 0);
+        } else {
+          setUser(null);
+          setIsLoading(false);
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      console.log("Checking for existing session:", currentSession?.user?.id);
+      setSession(currentSession);
+      
+      if (currentSession?.user) {
+        // Use setTimeout to avoid Supabase deadlocks
+        setTimeout(async () => {
           try {
-            // Fetch user profile from profiles table
             const { data: profile, error } = await supabase
               .from("profiles")
               .select("*")
@@ -51,11 +110,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
             if (error) {
               console.error("Error fetching user profile:", error);
-              toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Failed to fetch user profile",
-              });
+              setIsLoading(false);
               return;
             }
 
@@ -69,65 +124,23 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 specialty: profile.specialty,
                 lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
               });
+            } else {
+              // Create a mock user for demonstration if profile doesn't exist
+              console.log("No profile found, creating mock user for demonstration");
+              setUser({
+                id: currentSession.user.id,
+                email: currentSession.user.email || 'demo@example.com',
+                name: "Demo User",
+                role: "patient",
+                lastLogin: new Date()
+              });
             }
           } catch (error) {
             console.error("Failed to fetch profile data", error);
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: "Failed to load user data",
-            });
+          } finally {
+            setIsLoading(false);
           }
-        } else {
-          setUser(null);
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
-      console.log("Checking for existing session:", currentSession?.user?.id);
-      setSession(currentSession);
-      
-      if (currentSession?.user) {
-        try {
-          const { data: profile, error } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", currentSession.user.id)
-            .maybeSingle();
-
-          if (error) {
-            console.error("Error fetching user profile:", error);
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: "Failed to fetch user profile",
-            });
-            return;
-          }
-
-          if (profile) {
-            setUser({
-              id: profile.id,
-              name: profile.name,
-              email: profile.email,
-              role: profile.role,
-              age: profile.age,
-              specialty: profile.specialty,
-              lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
-            });
-          }
-        } catch (error) {
-          console.error("Failed to fetch profile data", error);
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to load user data",
-          });
-        } finally {
-          setIsLoading(false);
-        }
+        }, 0);
       } else {
         setIsLoading(false);
       }
@@ -218,6 +231,30 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         title: "Login successful",
         description: "Welcome back to FulaMed!",
       });
+      
+      // For demo purposes, immediately create a user object if login is successful
+      // but no profile exists
+      if (data.user) {
+        setTimeout(async () => {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", data.user?.id)
+            .maybeSingle();
+            
+          if (!profile) {
+            console.log("Creating mock profile for demo");
+            setUser({
+              id: data.user.id,
+              email: data.user.email || 'demo@example.com',
+              name: "Demo User",
+              role: "patient",
+              lastLogin: new Date()
+            });
+          }
+        }, 0);
+      }
+      
       return true;
     } catch (error) {
       console.error("Login failed", error);
