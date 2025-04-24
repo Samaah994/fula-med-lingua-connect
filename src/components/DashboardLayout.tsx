@@ -1,5 +1,5 @@
 
-import React, { ReactNode, useState, memo } from 'react';
+import React, { ReactNode, useState, memo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, FileText, User, LogOut, MessageSquare, Calendar, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,26 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
   const { user, logout } = useUser();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+
+  // Ensure layout is ready before rendering content
+  useEffect(() => {
+    if (user) {
+      setIsReady(true);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    // Force ready state after a timeout to prevent infinite loading
+    const timer = setTimeout(() => {
+      if (!isReady) {
+        console.log("Forcing dashboard ready state");
+        setIsReady(true);
+      }
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [isReady]);
 
   const handleLogout = () => {
     logout();
@@ -58,6 +78,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
     navigate(path);
     setMobileMenuOpen(false);
   };
+
+  if (!isReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-accent/30 flex flex-col">

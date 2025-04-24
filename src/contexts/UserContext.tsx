@@ -27,6 +27,15 @@ type UserContextType = {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
+// Create mock user for demonstration purposes
+const createMockUser = (id: string, email: string): User => ({
+  id,
+  email: email || 'demo@example.com',
+  name: "Demo User",
+  role: "patient",
+  lastLogin: new Date()
+});
+
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -40,54 +49,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log("Auth state changed:", event, currentSession?.user?.id);
-        setSession(currentSession);
         
         if (currentSession?.user) {
+          setSession(currentSession);
+          
           // Use setTimeout to avoid Supabase deadlocks
-          setTimeout(async () => {
-            try {
-              // Fetch user profile from profiles table
-              const { data: profile, error } = await supabase
-                .from("profiles")
-                .select("*")
-                .eq("id", currentSession.user.id)
-                .maybeSingle();
-
-              if (error) {
-                console.error("Error fetching user profile:", error);
-                setIsLoading(false);
-                return;
-              }
-
-              if (profile) {
-                setUser({
-                  id: profile.id,
-                  name: profile.name,
-                  email: profile.email,
-                  role: profile.role,
-                  age: profile.age,
-                  specialty: profile.specialty,
-                  lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
-                });
-              } else {
-                // Create a mock user for demonstration if profile doesn't exist
-                console.log("No profile found, creating mock user for demonstration");
-                setUser({
-                  id: currentSession.user.id,
-                  email: currentSession.user.email || 'demo@example.com',
-                  name: "Demo User",
-                  role: "patient",
-                  lastLogin: new Date()
-                });
-              }
-            } catch (error) {
-              console.error("Failed to fetch profile data", error);
-            } finally {
-              setIsLoading(false);
-            }
+          setTimeout(() => {
+            fetchUserProfile(currentSession.user);
           }, 0);
         } else {
           setUser(null);
+          setSession(null);
           setIsLoading(false);
         }
       }
@@ -96,50 +68,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       console.log("Checking for existing session:", currentSession?.user?.id);
-      setSession(currentSession);
       
       if (currentSession?.user) {
+        setSession(currentSession);
+        
         // Use setTimeout to avoid Supabase deadlocks
-        setTimeout(async () => {
-          try {
-            const { data: profile, error } = await supabase
-              .from("profiles")
-              .select("*")
-              .eq("id", currentSession.user.id)
-              .maybeSingle();
-
-            if (error) {
-              console.error("Error fetching user profile:", error);
-              setIsLoading(false);
-              return;
-            }
-
-            if (profile) {
-              setUser({
-                id: profile.id,
-                name: profile.name,
-                email: profile.email,
-                role: profile.role,
-                age: profile.age,
-                specialty: profile.specialty,
-                lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
-              });
-            } else {
-              // Create a mock user for demonstration if profile doesn't exist
-              console.log("No profile found, creating mock user for demonstration");
-              setUser({
-                id: currentSession.user.id,
-                email: currentSession.user.email || 'demo@example.com',
-                name: "Demo User",
-                role: "patient",
-                lastLogin: new Date()
-              });
-            }
-          } catch (error) {
-            console.error("Failed to fetch profile data", error);
-          } finally {
-            setIsLoading(false);
-          }
+        setTimeout(() => {
+          fetchUserProfile(currentSession.user);
         }, 0);
       } else {
         setIsLoading(false);
@@ -150,6 +85,43 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Helper function to fetch user profile
+  const fetchUserProfile = async (supabaseUser: SupabaseUser) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", supabaseUser.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching user profile:", error);
+        // Create mock profile as fallback on error
+        setUser(createMockUser(supabaseUser.id, supabaseUser.email || ''));
+      } else if (profile) {
+        setUser({
+          id: profile.id,
+          name: profile.name,
+          email: profile.email,
+          role: profile.role,
+          age: profile.age,
+          specialty: profile.specialty,
+          lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
+        });
+      } else {
+        // Create mock profile if no profile exists yet
+        console.log("No profile found, creating mock user");
+        setUser(createMockUser(supabaseUser.id, supabaseUser.email || ''));
+      }
+    } catch (error) {
+      console.error("Failed to fetch profile data", error);
+      // Create mock profile as fallback on exception
+      setUser(createMockUser(supabaseUser.id, supabaseUser.email || ''));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Signup function with improved error handling
   const signup = async (userData: Partial<User> & { password: string }): Promise<boolean> => {
@@ -190,6 +162,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           title: "Signup successful",
           description: "Welcome to FulaMed! Please check your email to verify your account.",
         });
+        // For demo purposes, create a mock user immediately after signup
+        setUser(createMockUser(data.user.id, data.user.email || ''));
         return true;
       }
       
@@ -232,27 +206,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         description: "Welcome back to FulaMed!",
       });
       
-      // For demo purposes, immediately create a user object if login is successful
-      // but no profile exists
-      if (data.user) {
-        setTimeout(async () => {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", data.user?.id)
-            .maybeSingle();
-            
-          if (!profile) {
-            console.log("Creating mock profile for demo");
-            setUser({
-              id: data.user.id,
-              email: data.user.email || 'demo@example.com',
-              name: "Demo User",
-              role: "patient",
-              lastLogin: new Date()
-            });
+      // For demo purposes, set mock user immediately if login is successful
+      if (data.user && !user) {
+        // Wait a bit to ensure auth state change trigger has priority
+        setTimeout(() => {
+          if (!user) {
+            console.log("Creating immediate mock user");
+            setUser(createMockUser(data.user!.id, data.user!.email || ''));
+            setIsLoading(false);
           }
-        }, 0);
+        }, 500);
       }
       
       return true;
@@ -265,7 +228,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       });
       return false;
     } finally {
-      setIsLoading(false);
+      // Allow delay for auth state change to take precedence
+      setTimeout(() => {
+        if (isLoading) {
+          setIsLoading(false);
+        }
+      }, 1000);
     }
   };
 
@@ -274,6 +242,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       await supabase.auth.signOut();
       setUser(null);
+      setSession(null);
       toast({
         title: "Logout successful",
         description: "You have been logged out successfully.",

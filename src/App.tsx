@@ -31,40 +31,31 @@ const PageLoader = () => (
 // Protected route component with improved performance
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useUser();
-  const [hasChecked, setHasChecked] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   
   useEffect(() => {
-    // Set hasChecked to true after a short delay if still loading
-    // This prevents infinite loading states
-    const timer = setTimeout(() => {
-      if (isLoading) {
-        console.log("Auth check taking too long, proceeding with rendering");
-        setHasChecked(true);
-      }
-    }, 1500);
-    
-    // If we get a definite answer (user or null), clear timeout and set hasChecked
-    if (!isLoading) {
-      clearTimeout(timer);
-      setHasChecked(true);
+    // If explicitly not logged in (not loading and no user), redirect
+    if (!isLoading && !user) {
+      console.log("No user detected, redirecting to login");
+      setRedirecting(true);
     }
-    
-    return () => clearTimeout(timer);
-  }, [isLoading]);
+  }, [isLoading, user]);
   
-  // Show loader only during initial check and not too long
-  if (isLoading && !hasChecked) {
+  // Show loader while initial auth check is happening
+  if (isLoading && !user) {
+    console.log("Auth state loading...");
     return <PageLoader />;
   }
   
-  // Show the content if we have a user OR if we've waited long enough to check
-  // This ensures we don't get stuck in loading states
-  if (user || hasChecked) {
-    return <>{children}</>;
+  // Redirect if we've confirmed there's no user
+  if (redirecting) {
+    console.log("Redirecting to login page");
+    return <Navigate to="/login" replace />;
   }
   
-  // Redirect to login if we've confirmed there's no user
-  return <Navigate to="/login" replace />;
+  // Important: Always render children if we have a user OR if we're still checking
+  // This prevents flickering and ensures content is displayed
+  return <>{children}</>;
 };
 
 const App = () => {
@@ -74,9 +65,8 @@ const App = () => {
       queries: {
         staleTime: 120000, // 2 minutes
         gcTime: 300000, // 5 minutes
-        retry: 0, // No retries for faster failure
+        retry: 1, // Allow one retry
         refetchOnWindowFocus: false,
-        refetchOnMount: false, // Prevent refetching when components mount
       },
     },
   }));
