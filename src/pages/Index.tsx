@@ -7,12 +7,13 @@ import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 // Simpler feature description component without unnecessary reactivity
 const FeatureItem = memo(({ title, description }: { title: string; description: string }) => (
-  <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
-    <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
-    <p className="text-gray-600">{description}</p>
+  <div className="bg-background/70 dark:bg-background/40 p-5 rounded-lg shadow-sm border border-border">
+    <h3 className="text-lg font-medium mb-2">{title}</h3>
+    <p className="text-muted-foreground">{description}</p>
   </div>
 ));
 
@@ -25,6 +26,7 @@ const Index = () => {
   const { t } = useLanguage();
 
   useEffect(() => {
+    console.log("Index page loaded, user state:", { user, isLoading });
     if (!isLoading && user) {
       navigate('/dashboard');
     }
@@ -35,18 +37,21 @@ const Index = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center dark:bg-gray-900">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
       {/* Simplified header */}
-      <header className="p-4 flex justify-between items-center">
+      <header className="p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm border-b border-border/50">
         <Logo size="medium" />
-        <LanguageSwitcher />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <LanguageSwitcher />
+        </div>
       </header>
       
       {/* Simplified hero section */}
@@ -59,7 +64,7 @@ const Index = () => {
                 <h1 className="text-3xl font-bold">
                   FulaMed: Medical Translation Made Simple
                 </h1>
-                <p className="text-gray-700">
+                <p className="text-muted-foreground">
                   Connect patients and healthcare providers across language divides.
                 </p>
                 <div className="flex gap-4">
@@ -76,7 +81,7 @@ const Index = () => {
               
               {/* Right image - ultra simplified */}
               <div className="md:w-1/2">
-                <div className="bg-primary/10 rounded-xl p-8 text-center">
+                <div className="bg-primary/10 dark:bg-primary/5 rounded-xl p-8 text-center">
                   Medical Translation Made Simple
                 </div>
               </div>
@@ -110,7 +115,7 @@ const Index = () => {
       </main>
       
       {/* Minimal footer */}
-      <footer className="py-4 text-center text-gray-600">
+      <footer className="py-4 text-center text-muted-foreground bg-background/80 backdrop-blur-sm border-t border-border/50">
         &copy; 2025 FulaMed. {t('allRightsReserved')}
       </footer>
     </div>

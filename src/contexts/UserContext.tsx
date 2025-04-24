@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { User as SupabaseUser, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,7 +56,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           setTimeout(() => {
             fetchUserProfile(currentSession.user);
           }, 0);
-        } else {
+        } else if (event === 'SIGNED_OUT') {
           setUser(null);
           setSession(null);
           setIsLoading(false);
@@ -77,12 +76,34 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           fetchUserProfile(currentSession.user);
         }, 0);
       } else {
+        // Create a mock user for development
+        if (process.env.NODE_ENV === 'development') {
+          const mockUser = createMockUser('dev-user-123', 'dev@example.com');
+          setUser(mockUser);
+          console.log("Created development mock user:", mockUser);
+        }
         setIsLoading(false);
       }
     });
 
+    // Force end loading state after a timeout
+    const timer = setTimeout(() => {
+      if (isLoading) {
+        console.log("Forcing end of loading state after timeout");
+        setIsLoading(false);
+        
+        // If no user by this point in dev mode, create one
+        if (!user && process.env.NODE_ENV === 'development') {
+          const mockUser = createMockUser('dev-user-123', 'dev@example.com');
+          setUser(mockUser);
+          console.log("Created development mock user after timeout:", mockUser);
+        }
+      }
+    }, 2000);
+
     return () => {
       subscription.unsubscribe();
+      clearTimeout(timer);
     };
   }, []);
 
@@ -98,26 +119,34 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       if (error) {
         console.error("Error fetching user profile:", error);
         // Create mock profile as fallback on error
-        setUser(createMockUser(supabaseUser.id, supabaseUser.email || ''));
+        const mockUser = createMockUser(supabaseUser.id, supabaseUser.email || '');
+        setUser(mockUser);
+        console.log("Created mock user after profile error:", mockUser);
       } else if (profile) {
-        setUser({
+        const userData = {
           id: profile.id,
-          name: profile.name,
-          email: profile.email,
-          role: profile.role,
+          name: profile.name || 'User',
+          email: profile.email || supabaseUser.email || '',
+          role: profile.role || 'patient',
           age: profile.age,
           specialty: profile.specialty,
-          lastLogin: profile.last_login ? new Date(profile.last_login) : undefined
-        });
+          lastLogin: profile.last_login ? new Date(profile.last_login) : new Date(),
+        };
+        setUser(userData);
+        console.log("Set user from profile:", userData);
       } else {
         // Create mock profile if no profile exists yet
         console.log("No profile found, creating mock user");
-        setUser(createMockUser(supabaseUser.id, supabaseUser.email || ''));
+        const mockUser = createMockUser(supabaseUser.id, supabaseUser.email || '');
+        setUser(mockUser);
+        console.log("Created mock user after no profile:", mockUser);
       }
     } catch (error) {
       console.error("Failed to fetch profile data", error);
       // Create mock profile as fallback on exception
-      setUser(createMockUser(supabaseUser.id, supabaseUser.email || ''));
+      const mockUser = createMockUser(supabaseUser.id, supabaseUser.email || '');
+      setUser(mockUser);
+      console.log("Created mock user after exception:", mockUser);
     } finally {
       setIsLoading(false);
     }

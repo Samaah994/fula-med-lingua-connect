@@ -33,18 +33,39 @@ const PageLoader = () => (
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useUser();
   const [redirecting, setRedirecting] = useState(false);
+  const [forceRender, setForceRender] = useState(false);
   
+  // Force render after a timeout to avoid infinite loading
   useEffect(() => {
-    // If explicitly not logged in (not loading and no user), redirect
+    console.log("Protected route mounted with user:", user, "isLoading:", isLoading);
+    
+    const timer = setTimeout(() => {
+      if (isLoading) {
+        console.log("Force rendering protected route after timeout");
+        setForceRender(true);
+      }
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, [isLoading, user]);
+
+  useEffect(() => {
+    // Check if we should redirect
     if (!isLoading && !user) {
       console.log("No user detected, redirecting to login");
       setRedirecting(true);
     }
-  }, [isLoading, user]);
+    
+    // If we force render and still have no user, redirect
+    if (forceRender && !user) {
+      console.log("Force rendered with no user, redirecting");
+      setRedirecting(true);
+    }
+  }, [isLoading, user, forceRender]);
   
-  // Show loader while initial auth check is happening
-  if (isLoading && !user) {
-    console.log("Auth state loading...");
+  // Show loader while initial auth check is happening (unless we force render)
+  if (isLoading && !forceRender) {
+    console.log("Auth state loading, showing loader");
     return <PageLoader />;
   }
   
@@ -54,8 +75,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" replace />;
   }
   
-  // Important: Always render children if we have a user OR if we're still checking
-  // This prevents flickering and ensures content is displayed
+  // If we have a user or we're force rendering, show the children
+  console.log("Rendering protected route content");
   return <>{children}</>;
 };
 

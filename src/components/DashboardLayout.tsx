@@ -9,6 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -44,24 +45,24 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
-  // Ensure layout is ready before rendering content
+  // Force ready state for development purposes
+  useEffect(() => {
+    console.log("DashboardLayout mount, user:", user);
+    const timer = setTimeout(() => {
+      setIsReady(true);
+      console.log("Dashboard ready state forced");
+    }, 800);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Also set ready when we have a user
   useEffect(() => {
     if (user) {
       setIsReady(true);
+      console.log("Dashboard ready from user:", user);
     }
   }, [user]);
-
-  useEffect(() => {
-    // Force ready state after a timeout to prevent infinite loading
-    const timer = setTimeout(() => {
-      if (!isReady) {
-        console.log("Forcing dashboard ready state");
-        setIsReady(true);
-      }
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, [isReady]);
 
   const handleLogout = () => {
     logout();
@@ -83,16 +84,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
 
   if (!isReady) {
     return (
-      <div className="min-h-screen flex items-center justify-center dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-background dark:bg-gray-900">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-accent/30 dark:bg-gray-900 flex flex-col transition-colors duration-300">
+    <div className="min-h-screen bg-background dark:bg-gray-900 flex flex-col transition-colors duration-300">
       {/* Simplified header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm p-4 z-20 relative transition-colors duration-300">
+      <header className="bg-background dark:bg-gray-800 shadow-sm p-4 z-20 relative transition-colors duration-300">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center">
             <Button 
@@ -107,6 +108,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
             <Logo />
           </div>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <LanguageSwitcher />
           </div>
         </div>
@@ -123,7 +125,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
         
         {/* Simplified sidebar */}
         <aside className={cn(
-          "bg-white dark:bg-gray-800 w-64 shadow-sm flex flex-col fixed inset-y-0 pt-16 z-10 transition-all duration-300",
+          "bg-card dark:bg-gray-800 w-64 shadow-sm flex flex-col fixed inset-y-0 pt-16 z-10 transition-all duration-300",
           "md:static md:translate-x-0 md:pt-0 md:w-20 lg:w-64",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}>

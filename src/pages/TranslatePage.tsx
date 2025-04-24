@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowRight, Mic, MicOff, Play, Settings, Volume2, VolumeX, MessageSquare, Volume } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,9 +7,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import DashboardLayout from '@/components/DashboardLayout';
-import { useLanguage, Language } from '@/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
+import { 
+  translateText, 
+  textToSpeech, 
+  languageMetadata, 
+  LanguageCode,
+  TranslationRequest 
+} from '@/services/translationService';
+import { useMutation } from '@tanstack/react-query';
 
 const TranslatePage: React.FC = () => {
   const { t, language } = useLanguage();
@@ -44,25 +51,92 @@ const TranslatePage: React.FC = () => {
 const TextTranslation: React.FC = () => {
   const { t } = useLanguage();
   const { user } = useUser();
+  const { toast } = useToast();
   
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
-  const [fromLang, setFromLang] = useState<Language>(user?.role === 'doctor' ? 'en' : 'ff');
-  const [toLang, setToLang] = useState<Language>(user?.role === 'doctor' ? 'ff' : 'fr');
+  const [fromLang, setFromLang] = useState<LanguageCode>(user?.role === 'doctor' ? 'en' : 'ff');
+  const [toLang, setToLang] = useState<LanguageCode>(user?.role === 'doctor' ? 'ff' : 'fr');
+
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const translateMutation = useMutation({
+    mutationFn: translateText,
+    onSuccess: (data) => {
+      setOutputText(data.translatedText);
+      toast({
+        title: "Translation complete",
+        description: `Translated from ${languageMetadata[data.source].name} to ${languageMetadata[data.target].name}`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Translation failed",
+        description: error.message,
+      });
+    }
+  });
+
+  const ttsMutation = useMutation({
+    mutationFn: textToSpeech,
+    onSuccess: (data) => {
+      if (audioRef.current) {
+        audioRef.current.src = data.audioUrl;
+        audioRef.current.play();
+        setIsPlaying(true);
+      }
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Text-to-speech failed",
+        description: error.message,
+      });
+    }
+  });
 
   const handleTranslate = () => {
-    // This is a mock translation - in a real app, you'd call a translation API
-    setOutputText(`[Translated from ${fromLang} to ${toLang}] ${inputText}`);
+    if (!inputText.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Empty input",
+        description: "Please enter text to translate",
+      });
+      return;
+    }
+
+    translateMutation.mutate({
+      text: inputText,
+      source: fromLang,
+      target: toLang
+    });
   };
 
-  const languages = [
-    { code: 'en' as Language, name: 'English' },
-    { code: 'ff' as Language, name: 'Fulfulde' },
-    { code: 'fr' as Language, name: 'Français' }
-  ];
+  const handlePlayAudio = () => {
+    if (!outputText.trim()) return;
+    
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      return;
+    }
+    
+    ttsMutation.mutate({
+      text: outputText,
+      language: toLang
+    });
+  };
+
+  const languages = Object.entries(languageMetadata).map(([code, data]) => ({
+    code: code as LanguageCode,
+    name: `${data.flag} ${data.name} (${data.nativeName})`
+  }));
 
   return (
-    <Card>
+    <Card className="bg-card">
       <CardContent className="pt-6">
         <div className="flex flex-col md:flex-row gap-4 mb-4">
           <div className="flex-1">
@@ -71,7 +145,7 @@ const TextTranslation: React.FC = () => {
             </label>
             <Select
               value={fromLang}
-              onValueChange={(value: Language) => setFromLang(value)}
+              onValueChange={(value: LanguageCode) => setFromLang(value)}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -96,7 +170,7 @@ const TextTranslation: React.FC = () => {
             </label>
             <Select
               value={toLang}
-              onValueChange={(value: Language) => setToLang(value)}
+              onValueChange={(value: LanguageCode) => setToLang(value)}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -121,24 +195,49 @@ const TextTranslation: React.FC = () => {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder={t('enterTextToTranslate')}
-              className="min-h-32 dark:bg-gray-800"
+              className="min-h-32"
             />
           </div>
           
-          <Button onClick={handleTranslate} className="w-full">
-            {t('translate')}
+          <Button 
+            onClick={handleTranslate} 
+            className="w-full" 
+            disabled={translateMutation.isPending || !inputText.trim()}>
+            {translateMutation.isPending ? (
+              <>
+                <span className="animate-spin mr-2">⟳</span>
+                {t('translating')}...
+              </>
+            ) : t('translate')}
           </Button>
           
           <div>
-            <label className="text-sm font-medium mb-2 block">
-              {t('translationResult')}:
-            </label>
+            <div className="flex justify-between mb-2">
+              <label className="text-sm font-medium">
+                {t('translationResult')}:
+              </label>
+              {outputText && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handlePlayAudio}
+                  disabled={ttsMutation.isPending}>
+                  {isPlaying ? (
+                    <VolumeX className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Volume2 className="h-4 w-4 mr-2" />
+                  )}
+                  {isPlaying ? t('stopAudio') : t('playAudio')}
+                </Button>
+              )}
+            </div>
             <Textarea
               value={outputText}
               readOnly
               placeholder={t('translationWillAppearHere')}
-              className="min-h-32 dark:bg-gray-800"
+              className="min-h-32"
             />
+            <audio ref={audioRef} className="hidden" />
           </div>
         </div>
       </CardContent>
@@ -154,28 +253,25 @@ const VoiceTranslation: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [transcription, setTranscription] = useState('');
   const [translation, setTranslation] = useState('');
-  const [fromLang, setFromLang] = useState<Language>(user?.role === 'doctor' ? 'en' : 'ff');
-  const [toLang, setToLang] = useState<Language>(user?.role === 'doctor' ? 'ff' : 'fr');
+  const [fromLang, setFromLang] = useState<LanguageCode>(user?.role === 'doctor' ? 'en' : 'ff');
+  const [toLang, setToLang] = useState<LanguageCode>(user?.role === 'doctor' ? 'ff' : 'fr');
   const [micPermission, setMicPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   
-  // Mock media recorder
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
   const languages = [
-    { code: 'en' as Language, name: 'English' },
-    { code: 'ff' as Language, name: 'Fulfulde' },
-    { code: 'fr' as Language, name: 'Français' }
+    { code: 'en' as LanguageCode, name: 'English' },
+    { code: 'ff' as LanguageCode, name: 'Fulfulde' },
+    { code: 'fr' as LanguageCode, name: 'Français' }
   ];
 
   useEffect(() => {
-    // Check if microphone permission is already granted
     navigator.mediaDevices.enumerateDevices()
       .then(devices => {
         const hasAudioInput = devices.some(device => device.kind === 'audioinput');
         if (hasAudioInput) {
-          // This doesn't actually tell us permission status, just that audio devices exist
-          // We'll know for sure when we try to access the microphone
+          setMicPermission('granted');
         }
       })
       .catch(err => {
@@ -197,12 +293,10 @@ const VoiceTranslation: React.FC = () => {
       };
       
       mediaRecorderRef.current.onstop = () => {
-        // Mock transcription
         setTimeout(() => {
           const mockText = "This is a sample transcription of speech that would be processed in a real application.";
           setTranscription(mockText);
           
-          // Mock translation
           setTimeout(() => {
             setTranslation(`[Translated from ${fromLang} to ${toLang}] ${mockText}`);
           }, 500);
@@ -217,7 +311,6 @@ const VoiceTranslation: React.FC = () => {
         description: "Speak now. Recording will automatically stop after 15 seconds if not stopped manually.",
       });
       
-      // Auto-stop after 15 seconds
       setTimeout(() => {
         if (isRecording) {
           stopRecording();
@@ -240,7 +333,6 @@ const VoiceTranslation: React.FC = () => {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       
-      // Stop all audio tracks
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
       
       toast({
@@ -259,7 +351,6 @@ const VoiceTranslation: React.FC = () => {
   };
 
   const playTranslation = () => {
-    // In a real app, this would use text-to-speech API
     toast({
       title: "Playing audio",
       description: "In a real application, this would play the translated audio.",
@@ -277,7 +368,7 @@ const VoiceTranslation: React.FC = () => {
               </label>
               <Select
                 value={fromLang}
-                onValueChange={(value: Language) => setFromLang(value)}
+                onValueChange={(value: LanguageCode) => setFromLang(value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -302,7 +393,7 @@ const VoiceTranslation: React.FC = () => {
               </label>
               <Select
                 value={toLang}
-                onValueChange={(value: Language) => setToLang(value)}
+                onValueChange={(value: LanguageCode) => setToLang(value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -318,7 +409,6 @@ const VoiceTranslation: React.FC = () => {
             </div>
           </div>
           
-          {/* Microphone Interface */}
           <div className="mb-6 flex justify-center">
             <Button
               size="lg"
@@ -334,7 +424,6 @@ const VoiceTranslation: React.FC = () => {
             </Button>
           </div>
           
-          {/* Recording status indicator */}
           <div className="text-center mb-6">
             {isRecording ? (
               <div className="flex flex-col items-center">
@@ -352,7 +441,6 @@ const VoiceTranslation: React.FC = () => {
             )}
           </div>
           
-          {/* Transcription Display */}
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium mb-2 block">
