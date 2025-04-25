@@ -17,14 +17,16 @@ serve(async (req) => {
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
 
     if (!openaiApiKey) {
-      return new Response(
-        JSON.stringify({ error: 'OpenAI API key is not configured' }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
+      throw new Error('OpenAI API key not configured')
     }
+
+    console.log(`Translating from ${source} to ${target}: "${text}"`)
+
+    const systemPrompt = `You are a professional translator specialized in medical terminology and healthcare communication. 
+    You are fluent in English (en), French (fr), and Fulfulde (ff). 
+    Translate the text accurately while preserving medical meaning and cultural context.
+    If translating to Fulfulde, ensure proper use of medical terminology in Fulfulde.
+    Respond ONLY with the translation, no explanations or additional text.`
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -37,24 +39,26 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a professional translator specialized in ${source} and ${target} languages. Translate the text accurately while preserving meaning and context.`
+            content: systemPrompt
           },
           {
             role: 'user',
             content: `Translate this text from ${source} to ${target}: "${text}"`
           }
         ],
+        temperature: 0.3, // Lower temperature for more consistent translations
       }),
     })
 
     const data = await response.json()
-    const translatedText = data.choices[0].message.content
+    const translatedText = data.choices[0].message.content.trim()
 
     return new Response(
       JSON.stringify({ translatedText }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
+    console.error('Translation error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

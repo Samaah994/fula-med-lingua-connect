@@ -47,7 +47,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">{t('profile')}</CardTitle>
+            <CardTitle className="text-lg">Profile Overview</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -78,7 +78,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">{t('upcomingAppointments')}</CardTitle>
+            <CardTitle className="text-lg">Upcoming Appointments</CardTitle>
           </CardHeader>
           <CardContent>
             {upcomingAppointments.length > 0 ? (
@@ -113,7 +113,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">{t('recentTranslations')}</CardTitle>
+            <CardTitle className="text-lg">Recent Translations</CardTitle>
           </CardHeader>
           <CardContent>
             {recentTranslations.length > 0 ? (
@@ -151,21 +151,21 @@ const DoctorDashboard = ({ user }: { user: any }) => {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t('quickActions')}</CardTitle>
+          <CardTitle>Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <Button onClick={() => navigate('/translate')} className="h-20 text-lg justify-start px-4">
               <MessageSquare className="h-6 w-6 mr-4" />
-              {t('startTranslation')}
+              Start Translation Session
             </Button>
             <Button onClick={() => navigate('/appointments')} variant="outline" className="h-20 text-lg justify-start px-4">
               <Calendar className="h-6 w-6 mr-4" />
-              {t('manageAppointments')}
+              Manage Appointments
             </Button>
             <Button onClick={() => navigate('/medical-history')} variant="outline" className="h-20 text-lg justify-start px-4">
               <ClipboardList className="h-6 w-6 mr-4" />
-              {t('patientRecords')}
+              View Patient Records
             </Button>
           </div>
         </CardContent>
