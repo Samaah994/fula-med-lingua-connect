@@ -14,8 +14,18 @@ serve(async (req) => {
 
   try {
     const { text, language } = await req.json()
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
 
-    // Map languages to appropriate voices
+    if (!openaiApiKey) {
+      return new Response(
+        JSON.stringify({ error: 'OpenAI API key is not configured' }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
     const voiceMap = {
       en: 'nova',
       fr: 'alloy',
@@ -24,11 +34,10 @@ serve(async (req) => {
 
     const voice = voiceMap[language] || 'alloy'
 
-    // Call OpenAI TTS API
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${openaiApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -43,7 +52,6 @@ serve(async (req) => {
       throw new Error('Failed to generate speech')
     }
 
-    // Convert audio buffer to base64
     const arrayBuffer = await response.arrayBuffer()
     const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
 
