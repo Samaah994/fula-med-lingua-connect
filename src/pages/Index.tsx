@@ -1,12 +1,12 @@
-
 import { useEffect, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
-import { Loader2, LogIn, UserPlus } from 'lucide-react';
+import { Loader2, LogIn, UserPlus, MessageSquare, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 // Simpler feature description component without unnecessary reactivity
@@ -19,25 +19,17 @@ const FeatureItem = memo(({ title, description }: { title: string; description: 
 
 FeatureItem.displayName = 'FeatureItem';
 
-// Optimized main Index component with reduced rendering complexity
 const Index = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useUser();
   const { t } = useLanguage();
 
-  useEffect(() => {
-    console.log("Index page loaded, user state:", { user, isLoading });
-    if (!isLoading && user) {
-      navigate('/dashboard');
-    }
-  }, [navigate, user, isLoading]);
-
-  const handleLoginClick = useCallback(() => navigate('/login'), [navigate]);
-  const handleSignupClick = useCallback(() => navigate('/signup'), [navigate]);
-
+  // Remove automatic redirection for logged-in users
+  // They should be able to view the landing page even when logged in
+  
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -45,78 +37,140 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
-      {/* Simplified header */}
-      <header className="p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm border-b border-border/50">
-        <Logo size="medium" />
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <LanguageSwitcher />
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center px-4 sm:px-8">
+          <Logo />
+          <div className="ml-auto flex items-center space-x-4">
+            <ThemeToggle />
+            <LanguageSwitcher />
+            {!user ? (
+              <div className="hidden sm:flex sm:items-center sm:space-x-4">
+                <Button variant="ghost" onClick={() => navigate('/login')}>
+                  {t('login')}
+                </Button>
+                <Button onClick={() => navigate('/signup')}>
+                  {t('signup')}
+                </Button>
+              </div>
+            ) : (
+              <Button onClick={() => navigate('/dashboard')}>
+                {t('dashboard')}
+              </Button>
+            )}
+          </div>
         </div>
       </header>
-      
-      {/* Simplified hero section */}
-      <main className="flex-1">
-        <section className="py-8 px-4">
-          <div className="container mx-auto">
-            <div className="flex flex-col md:flex-row gap-8">
-              {/* Left content */}
-              <div className="md:w-1/2 space-y-6">
-                <h1 className="text-3xl font-bold">
+
+      {/* Hero Section */}
+      <section className="relative">
+        <div className="container px-4 py-12 sm:px-6 lg:px-8 lg:py-24">
+          <div className="grid gap-8 lg:grid-cols-2 lg:gap-16">
+            <div className="flex flex-col justify-center space-y-8">
+              <div className="space-y-4">
+                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                   FulaMed: Medical Translation Made Simple
                 </h1>
-                <p className="text-muted-foreground">
-                  Connect patients and healthcare providers across language divides.
+                <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
+                  Breaking language barriers in healthcare. Connect patients and healthcare providers across languages.
                 </p>
-                <div className="flex gap-4">
-                  <Button onClick={handleLoginClick}>
-                    <LogIn className="w-4 h-4 mr-2" />
-                    {t('login')}
-                  </Button>
-                  <Button variant="outline" onClick={handleSignupClick}>
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    {t('signup')}
-                  </Button>
-                </div>
               </div>
-              
-              {/* Right image - ultra simplified */}
-              <div className="md:w-1/2">
-                <div className="bg-primary/10 dark:bg-primary/5 rounded-xl p-8 text-center">
-                  Medical Translation Made Simple
+              <div className="flex flex-col gap-4 min-[400px]:flex-row">
+                {!user ? (
+                  <>
+                    <Button size="lg" onClick={() => navigate('/signup')}>
+                      <UserPlus className="mr-2 h-5 w-5" />
+                      {t('getStarted')}
+                    </Button>
+                    <Button variant="outline" size="lg" onClick={() => navigate('/login')}>
+                      <LogIn className="mr-2 h-5 w-5" />
+                      {t('login')}
+                    </Button>
+                  </>
+                ) : (
+                  <Button size="lg" onClick={() => navigate('/dashboard')}>
+                    {t('goToDashboard')}
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center justify-center">
+              <div className="relative w-full max-w-lg">
+                <div className="absolute -right-4 top-4 h-72 w-72 rounded-full bg-primary/10 blur-2xl" />
+                <div className="absolute -left-4 bottom-4 h-72 w-72 rounded-full bg-secondary/10 blur-2xl" />
+                <div className="relative rounded-2xl border bg-card p-8 shadow">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-bold">{t('featuredFeatures')}</h3>
+                      <p className="text-muted-foreground">
+                        {t('exploreOurServices')}
+                      </p>
+                    </div>
+                    <div className="grid gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 p-2">
+                          <MessageSquare className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-medium">{t('realTimeTranslation')}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {t('instantTranslationDesc')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 p-2">
+                          <Volume2 className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-medium">{t('voiceSupport')}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {t('voiceSupportDesc')}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </section>
-        
-        {/* Simplified features section */}
-        <section className="py-8 px-4 bg-accent/10">
-          <div className="container mx-auto">
-            <h2 className="text-xl font-bold text-center mb-6">
-              Key Features
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FeatureItem 
-                title="Medical Translation" 
-                description="Accurate translation of medical terms between patients and providers." 
-              />
-              <FeatureItem 
-                title="Voice & Text Support" 
-                description="Communicate through text and voice for natural conversations." 
-              />
-              <FeatureItem 
-                title="Patient-Doctor Connect" 
-                description="Schedule appointments and maintain communication easily." 
-              />
-            </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="w-full py-12 bg-accent/10">
+        <div className="container px-4 md:px-6">
+          <div className="grid gap-6 lg:grid-cols-3">
+            <FeatureItem 
+              title={t('medicalTranslation')}
+              description={t('medicalTranslationDesc')}
+            />
+            <FeatureItem 
+              title={t('voiceAndTextSupport')}
+              description={t('voiceAndTextSupportDesc')}
+            />
+            <FeatureItem 
+              title={t('patientDoctorConnect')}
+              description={t('patientDoctorConnectDesc')}
+            />
           </div>
-        </section>
-      </main>
-      
-      {/* Minimal footer */}
-      <footer className="py-4 text-center text-muted-foreground bg-background/80 backdrop-blur-sm border-t border-border/50">
-        &copy; 2025 FulaMed. {t('allRightsReserved')}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t py-6 md:py-0">
+        <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
+          <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
+            &copy; 2025 FulaMed. {t('allRightsReserved')}
+          </p>
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" size="icon">
+              <ThemeToggle />
+            </Button>
+            <LanguageSwitcher />
+          </div>
+        </div>
       </footer>
     </div>
   );

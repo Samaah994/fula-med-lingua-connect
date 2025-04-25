@@ -101,10 +101,12 @@ const App = () => {
               <BrowserRouter>
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
+                    {/* Public routes */}
                     <Route path="/" element={<Index />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/signup" element={<SignupPage />} />
                     
+                    {/* Protected routes */}
                     <Route path="/dashboard" element={
                       <ProtectedRoute>
                         <DashboardPage />
