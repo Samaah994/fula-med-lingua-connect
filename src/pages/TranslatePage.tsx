@@ -138,8 +138,15 @@ const TextTranslation: React.FC = () => {
   return (
     <Card className="bg-card">
       <CardContent className="pt-6">
-        <div className="flex flex-col md:flex-row gap-4 mb-4">
-          <div className="flex-1">
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold mb-2">Medical Translation</h2>
+          <p className="text-muted-foreground">
+            Translate medical conversations between English, French, and Fulfulde with high accuracy.
+          </p>
+        </div>
+        
+        <div className="space-y-4">
+          <div>
             <label className="text-sm font-medium mb-2 block">
               {t('from')}:
             </label>
@@ -361,6 +368,13 @@ const VoiceTranslation: React.FC = () => {
     <div className="space-y-6">
       <Card>
         <CardContent className="pt-6">
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold mb-2">Voice Translation</h2>
+            <p className="text-muted-foreground">
+              Speak naturally and get instant translations in your preferred language.
+            </p>
+          </div>
+          
           <div className="flex flex-col md:flex-row gap-4 mb-4">
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">

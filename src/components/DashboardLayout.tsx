@@ -70,7 +70,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
   };
 
   const menuItems = [
-    { icon: Home, label: t('home'), path: '/dashboard' },
+    { icon: Home, label: t('home'), path: '/' },
     { icon: User, label: t('profile'), path: '/profile' },
     { icon: FileText, label: t('medicalHistory'), path: '/medical-history' },
     { icon: MessageSquare, label: t('translate'), path: '/translate' },

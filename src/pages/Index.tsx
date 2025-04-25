@@ -9,7 +9,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
-// Simpler feature description component without unnecessary reactivity
 const FeatureItem = memo(({ title, description }: { title: string; description: string }) => (
   <div className="bg-background/70 dark:bg-background/40 p-5 rounded-lg shadow-sm border border-border">
     <h3 className="text-lg font-medium mb-2">{title}</h3>
@@ -24,9 +23,6 @@ const Index = () => {
   const { user, isLoading } = useUser();
   const { t } = useLanguage();
 
-  // Remove automatic redirection for logged-in users
-  // They should be able to view the landing page even when logged in
-  
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -37,7 +33,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
-      {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center px-4 sm:px-8">
           <Logo />
@@ -62,37 +57,34 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="relative">
         <div className="container px-4 py-12 sm:px-6 lg:px-8 lg:py-24">
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-16">
             <div className="flex flex-col justify-center space-y-8">
               <div className="space-y-4">
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                  FulaMed: Medical Translation Made Simple
+                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
+                  Breaking Language Barriers in Healthcare
                 </h1>
-                <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
-                  Breaking language barriers in healthcare. Connect patients and healthcare providers across languages.
+                <p className="max-w-[600px] text-lg text-muted-foreground md:text-xl">
+                  Empowering medical communication between healthcare providers and patients through seamless translation in English, French, and Fulfulde.
                 </p>
               </div>
-              <div className="flex flex-col gap-4 min-[400px]:flex-row">
-                {!user ? (
-                  <>
-                    <Button size="lg" onClick={() => navigate('/signup')}>
-                      <UserPlus className="mr-2 h-5 w-5" />
-                      {t('getStarted')}
-                    </Button>
-                    <Button variant="outline" size="lg" onClick={() => navigate('/login')}>
-                      <LogIn className="mr-2 h-5 w-5" />
-                      {t('login')}
-                    </Button>
-                  </>
-                ) : (
-                  <Button size="lg" onClick={() => navigate('/dashboard')}>
-                    {t('goToDashboard')}
+              {!user ? (
+                <>
+                  <Button size="lg" onClick={() => navigate('/signup')}>
+                    <UserPlus className="mr-2 h-5 w-5" />
+                    {t('getStarted')}
                   </Button>
-                )}
-              </div>
+                  <Button variant="outline" size="lg" onClick={() => navigate('/login')}>
+                    <LogIn className="mr-2 h-5 w-5" />
+                    {t('login')}
+                  </Button>
+                </>
+              ) : (
+                <Button size="lg" onClick={() => navigate('/dashboard')}>
+                  {t('goToDashboard')}
+                </Button>
+              )}
             </div>
             <div className="flex items-center justify-center">
               <div className="relative w-full max-w-lg">
@@ -138,27 +130,26 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="w-full py-12 bg-accent/10">
         <div className="container px-4 md:px-6">
+          <h2 className="text-3xl font-bold text-center mb-8">Our Core Features</h2>
           <div className="grid gap-6 lg:grid-cols-3">
             <FeatureItem 
-              title={t('medicalTranslation')}
-              description={t('medicalTranslationDesc')}
+              title="Medical Translation"
+              description="Accurate, real-time translation of medical terms and conversations between English, French, and Fulfulde."
             />
             <FeatureItem 
-              title={t('voiceAndTextSupport')}
-              description={t('voiceAndTextSupportDesc')}
+              title="Voice & Text Support"
+              description="Seamless communication through both voice and text translation, making healthcare more accessible."
             />
             <FeatureItem 
-              title={t('patientDoctorConnect')}
-              description={t('patientDoctorConnectDesc')}
+              title="Patient-Doctor Connection"
+              description="Bridge the communication gap between healthcare providers and patients for better care outcomes."
             />
           </div>
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t py-6 md:py-0">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
           <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">

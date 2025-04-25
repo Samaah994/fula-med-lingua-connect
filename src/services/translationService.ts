@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 // Language codes supported by the translation service
@@ -100,18 +99,18 @@ export const languageMetadata = {
     name: "English",
     nativeName: "English",
     flag: "🇬🇧",
-    voiceOptions: ["en-US-Standard-A", "en-US-Standard-B"],
+    voiceOptions: ["nova", "alloy", "echo"],
   },
   ff: {
     name: "Fulfulde",
     nativeName: "Fulfulde",
-    flag: "🇸🇳", // Using Senegal flag as proxy for Fulfulde
-    voiceOptions: ["default"],
+    flag: "🇸🇳",
+    voiceOptions: ["shimmer", "alloy"],
   },
   fr: {
     name: "French",
     nativeName: "Français",
     flag: "🇫🇷",
-    voiceOptions: ["fr-FR-Standard-A", "fr-FR-Standard-B"],
+    voiceOptions: ["alloy", "nova"],
   },
 };
