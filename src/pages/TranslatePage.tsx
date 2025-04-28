@@ -18,6 +18,7 @@ import {
   TranslationRequest 
 } from '@/services/translationService';
 import { useMutation } from '@tanstack/react-query';
+import TranslationInfo from '@/components/TranslationInfo';
 
 const TranslatePage: React.FC = () => {
   const { t, language } = useLanguage();
@@ -130,6 +131,20 @@ const TextTranslation: React.FC = () => {
     });
   };
 
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.onended = () => {
+        setIsPlaying(false);
+      };
+    }
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.onended = null;
+      }
+    };
+  }, []);
+
   const languages = Object.entries(languageMetadata).map(([code, data]) => ({
     code: code as LanguageCode,
     name: `${data.flag} ${data.name} (${data.nativeName})`
@@ -139,112 +154,129 @@ const TextTranslation: React.FC = () => {
     <Card className="bg-card">
       <CardContent className="pt-6">
         <div className="mb-6">
-          <h2 className="text-2xl font-semibold mb-2">Medical Translation</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-semibold">Medical Translation</h2>
+            <TranslationInfo sourceLang={fromLang} targetLang={toLang} />
+          </div>
           <p className="text-muted-foreground">
             Translate medical conversations between English, French, and Fulfulde with high accuracy.
           </p>
         </div>
         
         <div className="space-y-4">
-          <div>
-            <label className="text-sm font-medium mb-2 block">
-              {t('from')}:
-            </label>
-            <Select
-              value={fromLang}
-              onValueChange={(value: LanguageCode) => setFromLang(value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.map(lang => (
-                  <SelectItem key={lang.code} value={lang.code}>
-                    {lang.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="self-center">
-            <ArrowRight className="w-6 h-6" />
-          </div>
-          
-          <div className="flex-1">
-            <label className="text-sm font-medium mb-2 block">
-              {t('to')}:
-            </label>
-            <Select
-              value={toLang}
-              onValueChange={(value: LanguageCode) => setToLang(value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.map(lang => (
-                  <SelectItem key={lang.code} value={lang.code}>
-                    {lang.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="text-sm font-medium mb-2 block">
-              {t('inputText')}:
-            </label>
-            <Textarea
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder={t('enterTextToTranslate')}
-              className="min-h-32"
-            />
-          </div>
-          
-          <Button 
-            onClick={handleTranslate} 
-            className="w-full" 
-            disabled={translateMutation.isPending || !inputText.trim()}>
-            {translateMutation.isPending ? (
-              <>
-                <span className="animate-spin mr-2">⟳</span>
-                {t('translating')}...
-              </>
-            ) : t('translate')}
-          </Button>
-          
-          <div>
-            <div className="flex justify-between mb-2">
-              <label className="text-sm font-medium">
-                {t('translationResult')}:
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="w-full md:w-5/12">
+              <label className="text-sm font-medium mb-2 block">
+                {t('from')}:
               </label>
-              {outputText && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handlePlayAudio}
-                  disabled={ttsMutation.isPending}>
-                  {isPlaying ? (
-                    <VolumeX className="h-4 w-4 mr-2" />
-                  ) : (
-                    <Volume2 className="h-4 w-4 mr-2" />
-                  )}
-                  {isPlaying ? t('stopAudio') : t('playAudio')}
-                </Button>
-              )}
+              <Select
+                value={fromLang}
+                onValueChange={(value: LanguageCode) => {
+                  setFromLang(value);
+                  if (value === toLang) {
+                    const otherLangs = ['en', 'ff', 'fr'].filter(l => l !== value) as LanguageCode[];
+                    setToLang(otherLangs[0]);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {languages.map(lang => (
+                    <SelectItem key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <Textarea
-              value={outputText}
-              readOnly
-              placeholder={t('translationWillAppearHere')}
-              className="min-h-32"
-            />
-            <audio ref={audioRef} className="hidden" />
+            
+            <div className="self-center hidden md:block">
+              <ArrowRight className="w-6 h-6" />
+            </div>
+            
+            <div className="w-full md:w-5/12">
+              <label className="text-sm font-medium mb-2 block">
+                {t('to')}:
+              </label>
+              <Select
+                value={toLang}
+                onValueChange={(value: LanguageCode) => {
+                  setToLang(value);
+                  if (value === fromLang) {
+                    const otherLangs = ['en', 'ff', 'fr'].filter(l => l !== value) as LanguageCode[];
+                    setFromLang(otherLangs[0]);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {languages.map(lang => (
+                    <SelectItem key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                {t('inputText')}:
+              </label>
+              <Textarea
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder={t('enterTextToTranslate')}
+                className="min-h-32"
+              />
+            </div>
+            
+            <Button 
+              onClick={handleTranslate} 
+              className="w-full" 
+              disabled={translateMutation.isPending || !inputText.trim()}>
+              {translateMutation.isPending ? (
+                <>
+                  <span className="animate-spin mr-2">⟳</span>
+                  {t('translating')}...
+                </>
+              ) : t('translate')}
+            </Button>
+            
+            <div>
+              <div className="flex justify-between mb-2">
+                <label className="text-sm font-medium">
+                  {t('translationResult')}:
+                </label>
+                {outputText && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handlePlayAudio}
+                    disabled={ttsMutation.isPending}>
+                    {isPlaying ? (
+                      <VolumeX className="h-4 w-4 mr-2" />
+                    ) : (
+                      <Volume2 className="h-4 w-4 mr-2" />
+                    )}
+                    {isPlaying ? t('stopAudio') : t('playAudio')}
+                  </Button>
+                )}
+              </div>
+              <Textarea
+                value={outputText}
+                readOnly
+                placeholder={t('translationWillAppearHere')}
+                className="min-h-32"
+              />
+              <audio ref={audioRef} className="hidden" />
+            </div>
           </div>
         </div>
       </CardContent>

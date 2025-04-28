@@ -358,6 +358,46 @@ export const translations: TranslationDict = {
     en: "Play Audio",
     ff: "Nanno Ojoo",
     fr: "Lire l'Audio"
+  },
+  translationInfo: {
+    en: "Translation Information",
+    ff: "Humpito Firtugol",
+    fr: "Informations de Traduction"
+  },
+  translationDataSource: {
+    en: "Translation Data Source",
+    ff: "Iwdi Keɓe Firtugol",
+    fr: "Source de Données de Traduction"
+  },
+  fulfuldeDataSource: {
+    en: "Fulfulde translations use data from the OLDI seed dataset",
+    ff: "Firtugol Fulfulde huutorto keɓe OLDI seed dataset",
+    fr: "Les traductions en Fulfulde utilisent des données du jeu de données OLDI"
+  },
+  sttSupport: {
+    en: "Speech-to-Text Support",
+    ff: "Ballal Jiiɓtugol Haala to Binndol",
+    fr: "Support de Reconnaissance Vocale"
+  },
+  ttsSupport: {
+    en: "Text-to-Speech Support",
+    ff: "Ballal Jiiɓtugol Binndol to Haala",
+    fr: "Support de Synthèse Vocale"
+  },
+  fullSupport: {
+    en: "Full Support",
+    ff: "Ballal Timminngal",
+    fr: "Support Complet"
+  },
+  limitedSupport: {
+    en: "Limited Support",
+    ff: "Ballal Keddiingal",
+    fr: "Support Limité"
+  },
+  stopAudio: {
+    en: "Stop Audio",
+    ff: "Dartin Nanngitaade",
+    fr: "Arrêter l'Audio"
   }
 };
 

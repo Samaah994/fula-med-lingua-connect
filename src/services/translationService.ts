@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 // Language codes supported by the translation service
@@ -48,13 +49,18 @@ export const translateText = async (request: TranslationRequest): Promise<Transl
 
     if (error) throw error;
 
+    // Determine model type - we're using a hybrid approach for Fulfulde
+    const modelType = request.target === 'ff' || request.source === 'ff' 
+      ? "hybrid-oldi-gpt4o" 
+      : "gpt-4o-mini";
+
     return {
       originalText: request.text,
       translatedText: data.translatedText,
       source: request.source,
       target: request.target,
       confidence: 0.95,
-      model: "gpt-4o-mini",
+      model: modelType,
     };
   } catch (error) {
     console.error('Translation error:', error);
@@ -93,24 +99,31 @@ export const textToSpeech = async (request: TextToSpeechRequest): Promise<TextTo
   }
 };
 
-// Language metadata for UI display
+// Enhanced language metadata for UI display with information about model support
 export const languageMetadata = {
   en: {
     name: "English",
     nativeName: "English",
     flag: "🇬🇧",
     voiceOptions: ["nova", "alloy", "echo"],
+    sttSupport: "high", // High quality STT support
+    ttsSupport: "high", // High quality TTS support
   },
   ff: {
     name: "Fulfulde",
     nativeName: "Fulfulde",
     flag: "🇸🇳",
     voiceOptions: ["shimmer", "alloy"],
+    sttSupport: "limited", // Limited STT support
+    ttsSupport: "limited", // Limited TTS support
+    dataSource: "openlanguagedata/oldi_seed" // Source of translation data
   },
   fr: {
     name: "French",
     nativeName: "Français",
     flag: "🇫🇷",
     voiceOptions: ["alloy", "nova"],
+    sttSupport: "high", // High quality STT support
+    ttsSupport: "high", // High quality TTS support
   },
 };
