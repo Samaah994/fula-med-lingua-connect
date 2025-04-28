@@ -47,30 +47,30 @@ const DoctorDashboard = ({ user }: { user: any }) => {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Profile Overview</CardTitle>
+            <CardTitle className="text-lg font-semibold">Profile Overview</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('name')}:</span>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">{t('name')}</span>
                 <span className="font-medium">{user?.name}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('specialty')}:</span>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">{t('specialty')}</span>
                 <span className="font-medium">{t(user?.specialty || 'notSpecified')}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('lastLogin')}:</span>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">{t('lastLogin')}</span>
                 <span className="font-medium">{formatDate(user?.lastLogin)}</span>
               </div>
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="w-full mt-2"
+                className="w-full mt-4"
                 onClick={() => navigate('/profile')}
               >
                 <User className="h-4 w-4 mr-2" />
-                {t('viewProfile')}
+                View Profile
               </Button>
             </div>
           </CardContent>
@@ -78,7 +78,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Upcoming Appointments</CardTitle>
+            <CardTitle className="text-lg font-semibold">Upcoming Appointments</CardTitle>
           </CardHeader>
           <CardContent>
             {upcomingAppointments.length > 0 ? (
@@ -113,7 +113,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Recent Translations</CardTitle>
+            <CardTitle className="text-lg font-semibold">Recent Translations</CardTitle>
           </CardHeader>
           <CardContent>
             {recentTranslations.length > 0 ? (
@@ -151,13 +151,13 @@ const DoctorDashboard = ({ user }: { user: any }) => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle className="font-semibold">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <Button onClick={() => navigate('/translate')} className="h-20 text-lg justify-start px-4">
               <MessageSquare className="h-6 w-6 mr-4" />
-              Start Translation Session
+              Start Translation
             </Button>
             <Button onClick={() => navigate('/appointments')} variant="outline" className="h-20 text-lg justify-start px-4">
               <Calendar className="h-6 w-6 mr-4" />

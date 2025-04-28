@@ -1,4 +1,3 @@
-
 import React, { ReactNode, useState, memo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, FileText, User, LogOut, MessageSquare, Calendar, Menu, X } from 'lucide-react';
@@ -16,7 +15,6 @@ interface DashboardLayoutProps {
   title: string;
 }
 
-// Memoized navigation item to prevent re-renders
 const NavItem = memo(({ icon: Icon, label, path, onClick }: { 
   icon: React.ElementType, 
   label: string, 
@@ -26,11 +24,11 @@ const NavItem = memo(({ icon: Icon, label, path, onClick }: {
   <li>
     <Button
       variant="ghost"
-      className="w-full justify-start md:px-3 md:py-2 lg:px-4 lg:py-2"
+      className="w-full justify-start px-3 py-2"
       onClick={onClick}
     >
-      <Icon className="h-5 w-5 shrink-0 mr-0 md:mr-0 lg:mr-2" />
-      <span className="lg:inline hidden">{label}</span>
+      <Icon className="h-5 w-5 shrink-0 mr-2" />
+      <span className="block">{label}</span>
     </Button>
   </li>
 ));
@@ -70,7 +68,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
   };
 
   const menuItems = [
-    { icon: Home, label: t('home'), path: '/' },
+    { icon: Home, label: t('home'), path: '/dashboard' },
     { icon: User, label: t('profile'), path: '/profile' },
     { icon: FileText, label: t('medicalHistory'), path: '/medical-history' },
     { icon: MessageSquare, label: t('translate'), path: '/translate' },
@@ -115,7 +113,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
       </header>
 
       <div className="flex flex-1 relative">
-        {/* Mobile menu overlay - simplified */}
         {mobileMenuOpen && (
           <div 
             className="fixed inset-0 bg-black/20 dark:bg-black/50 z-10 md:hidden transition-colors duration-300"
@@ -123,10 +120,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
           />
         )}
         
-        {/* Simplified sidebar */}
         <aside className={cn(
           "bg-card dark:bg-gray-800 w-64 shadow-sm flex flex-col fixed inset-y-0 pt-16 z-10 transition-all duration-300",
-          "md:static md:translate-x-0 md:pt-0 md:w-20 lg:w-64",
+          "md:static md:translate-x-0 md:pt-0",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <nav className="flex-1 p-4 overflow-y-auto">
@@ -148,14 +144,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
               className="w-full justify-start text-destructive hover:bg-destructive/10"
               onClick={handleLogout}
             >
-              <LogOut className="h-5 w-5 shrink-0 mr-0 md:mr-0 lg:mr-2" />
-              <span className="lg:inline hidden">{t('logout')}</span>
+              <LogOut className="h-5 w-5 shrink-0 mr-2" />
+              <span>{t('logout')}</span>
             </Button>
           </div>
         </aside>
 
-        {/* Main content */}
-        <main className="flex-1 p-4 pt-4 md:ml-20 lg:ml-64 transition-all duration-300">
+        <main className="flex-1 p-4 pt-4 md:ml-64 transition-all duration-300">
           <h1 className="text-2xl font-bold mb-4">{title}</h1>
           {children}
         </main>

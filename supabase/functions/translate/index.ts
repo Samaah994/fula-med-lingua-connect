@@ -22,10 +22,14 @@ serve(async (req) => {
 
     console.log(`Translating from ${source} to ${target}: "${text}"`)
 
-    const systemPrompt = `You are a professional translator specialized in medical terminology and healthcare communication. 
-    You are fluent in English (en), French (fr), and Fulfulde (ff). 
-    Translate the text accurately while preserving medical meaning and cultural context.
-    If translating to Fulfulde, ensure proper use of medical terminology in Fulfulde.
+    const systemPrompt = `You are a professional medical translator with expertise in healthcare communication.
+    You are fluent in English (en), French (fr), and Fulfulde (ff).
+    Your task is to translate medical terminology and healthcare content while preserving accuracy and cultural context.
+    When translating to Fulfulde:
+    - Use proper medical terminology in Fulfulde
+    - Maintain cultural sensitivity
+    - Ensure clarity for patient communication
+    - Keep local dialect considerations in mind
     Respond ONLY with the translation, no explanations or additional text.`
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
