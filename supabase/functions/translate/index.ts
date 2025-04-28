@@ -75,6 +75,7 @@ serve(async (req) => {
     console.log(`Translating from ${source} to ${target}: "${text}"`)
     
     // For Fulfulde translations, first check our seed dataset for exact matches or phrases
+    let processedText = text;
     if ((source === 'en' && target === 'ff') || (source === 'fr' && target === 'ff')) {
       const lowerText = text.toLowerCase();
       
@@ -87,16 +88,14 @@ serve(async (req) => {
       }
       
       // Try to find phrases from our seed data in the input text
-      let modifiedText = text;
       Object.entries(fulaSeedPhrases).forEach(([en, ff]) => {
         const regex = new RegExp(`\\b${en}\\b`, 'gi');
-        modifiedText = modifiedText.replace(regex, `[${ff}]`);
+        processedText = processedText.replace(regex, `[${ff}]`);
       });
       
       // If we found and replaced some terms, inform the model
-      if (modifiedText !== text) {
-        const additionalInstruction = "I've identified some medical terms in brackets [term]. Please keep these translations in your response.";
-        text = additionalInstruction + "\n\n" + modifiedText;
+      if (processedText !== text) {
+        processedText = "I've identified some medical terms in brackets [term]. Please keep these translations in your response.\n\n" + processedText;
       }
     }
 
@@ -127,7 +126,7 @@ serve(async (req) => {
           },
           {
             role: 'user',
-            content: `Translate this text from ${source} to ${target}: "${text}"`
+            content: `Translate this text from ${source} to ${target}: "${processedText}"`
           }
         ],
         temperature: 0.3, // Lower temperature for more consistent translations

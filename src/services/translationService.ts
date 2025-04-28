@@ -39,6 +39,11 @@ export const translateText = async (request: TranslationRequest): Promise<Transl
   try {
     console.log(`Translating from ${request.source} to ${request.target}: "${request.text}"`);
     
+    // Input validation
+    if (!request.text || !request.text.trim()) {
+      throw new Error('Text to translate cannot be empty');
+    }
+    
     const { data, error } = await supabase.functions.invoke('translate', {
       body: {
         text: request.text,
@@ -47,7 +52,15 @@ export const translateText = async (request: TranslationRequest): Promise<Transl
       }
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw error;
+    }
+    
+    if (!data || !data.translatedText) {
+      console.error('Invalid response from translation function:', data);
+      throw new Error('No translation returned from server');
+    }
 
     // Determine model type - we're using a hybrid approach for Fulfulde
     const modelType = request.target === 'ff' || request.source === 'ff' 
@@ -64,13 +77,18 @@ export const translateText = async (request: TranslationRequest): Promise<Transl
     };
   } catch (error) {
     console.error('Translation error:', error);
-    throw new Error('Failed to translate text');
+    throw new Error('Failed to translate text: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 };
 
 export const textToSpeech = async (request: TextToSpeechRequest): Promise<TextToSpeechResponse> => {
   try {
     console.log(`Converting text to speech in ${request.language}: "${request.text}"`);
+    
+    // Input validation
+    if (!request.text || !request.text.trim()) {
+      throw new Error('Text for speech conversion cannot be empty');
+    }
     
     const { data, error } = await supabase.functions.invoke('text-to-speech', {
       body: {
@@ -80,7 +98,15 @@ export const textToSpeech = async (request: TextToSpeechRequest): Promise<TextTo
       }
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw error;
+    }
+    
+    if (!data || !data.audioContent) {
+      console.error('Invalid response from text-to-speech function:', data);
+      throw new Error('No audio data returned from server');
+    }
 
     // Create a Blob from the base64 audio data
     const binaryAudio = atob(data.audioContent);
@@ -95,7 +121,7 @@ export const textToSpeech = async (request: TextToSpeechRequest): Promise<TextTo
     return { audioUrl };
   } catch (error) {
     console.error('Text-to-speech error:', error);
-    throw new Error('Failed to convert text to speech');
+    throw new Error('Failed to convert text to speech: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 };
 
