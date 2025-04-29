@@ -33,6 +33,27 @@ const MedicalHistoryPage: React.FC = () => {
     queryFn: async () => {
       if (!user) throw new Error('User not authenticated');
       
+      // Check if the user ID is the development mock ID, and handle accordingly
+      if (user.id === 'dev-user-123') {
+        // Return mock data for development
+        return [
+          {
+            id: 'mock-1',
+            title: 'Annual Checkup Results',
+            content: 'All vitals normal. Blood pressure 120/80.',
+            record_type: 'text',
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'mock-2',
+            title: 'Consultation Recording',
+            record_type: 'voice',
+            duration: '3:45',
+            created_at: new Date(Date.now() - 86400000).toISOString()
+          }
+        ] as MedicalRecord[];
+      }
+      
       const { data, error } = await supabase
         .from('medical_records')
         .select('*')
@@ -54,6 +75,12 @@ const MedicalHistoryPage: React.FC = () => {
     if (!user) return;
 
     try {
+      // Skip tracking for development mock user
+      if (user.id === 'dev-user-123') {
+        console.log('Download tracking skipped for development user');
+        return;
+      }
+
       const { error } = await supabase
         .from('download_history')
         .insert({
@@ -92,16 +119,16 @@ const MedicalHistoryPage: React.FC = () => {
   }
 
   return (
-    <DashboardLayout title={t('medicalHistory')}>
+    <DashboardLayout title={t('Medical History')}>
       <Tabs defaultValue="text" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
           <TabsTrigger value="text">
             <FileText className="h-4 w-4 mr-2" />
-            {t('textNotes')}
+            {t('Text Notes')}
           </TabsTrigger>
           <TabsTrigger value="voice">
             <File className="h-4 w-4 mr-2" />
-            {t('voiceRecordings')}
+            {t('Voice Recordings')}
           </TabsTrigger>
         </TabsList>
         
@@ -130,7 +157,7 @@ const MedicalHistoryPage: React.FC = () => {
                       onClick={() => downloadRecord(record)}
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      {t('downloadAsPdf')}
+                      {t('Download as PDF')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -171,7 +198,7 @@ const MedicalHistoryPage: React.FC = () => {
                         onClick={() => downloadRecord(record)}
                       >
                         <Download className="h-4 w-4 mr-2" />
-                        {t('download')}
+                        {t('Download')}
                       </Button>
                     </div>
                     <div className="h-12 bg-secondary/20 rounded-md flex items-center justify-center">

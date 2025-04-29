@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -14,7 +15,7 @@ const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   
   return (
-    <DashboardLayout title={t('dashboard')}>
+    <DashboardLayout title="Dashboard">
       {user?.role === 'doctor' ? (
         <DoctorDashboard user={user} />
       ) : (
@@ -51,7 +52,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold">{t('profileOverview')}</CardTitle>
+              <CardTitle className="text-lg font-semibold">Profile Overview</CardTitle>
               <Avatar className="h-10 w-10">
                 <AvatarImage src={user?.avatarUrl} alt={user?.name} />
                 <AvatarFallback className="bg-primary/10 text-primary">{userInitials}</AvatarFallback>
@@ -61,15 +62,15 @@ const DoctorDashboard = ({ user }: { user: any }) => {
           <CardContent>
             <div className="space-y-2">
               <div className="grid grid-cols-2">
-                <span className="text-muted-foreground">{t('name')}</span>
+                <span className="text-muted-foreground">Name</span>
                 <span className="font-medium text-right">{user?.name}</span>
               </div>
               <div className="grid grid-cols-2">
-                <span className="text-muted-foreground">{t('specialty')}</span>
+                <span className="text-muted-foreground">Specialty</span>
                 <span className="font-medium text-right">{t(user?.specialty || 'notSpecified')}</span>
               </div>
               <div className="grid grid-cols-2">
-                <span className="text-muted-foreground">{t('lastLogin')}</span>
+                <span className="text-muted-foreground">Last Login</span>
                 <span className="font-medium text-right">{formatDate(user?.lastLogin)}</span>
               </div>
               <Button 
@@ -79,7 +80,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
                 onClick={() => navigate('/profile')}
               >
                 <User className="h-4 w-4 mr-2" />
-                {t('viewProfile')}
+                View Profile
               </Button>
             </div>
           </CardContent>
@@ -109,12 +110,12 @@ const DoctorDashboard = ({ user }: { user: any }) => {
                   onClick={() => navigate('/appointments')}
                 >
                   <Calendar className="h-4 w-4 mr-2" />
-                  {t('viewAll')}
+                  View All
                 </Button>
               </div>
             ) : (
               <div className="text-center text-muted-foreground py-4">
-                {t('noUpcomingAppointments')}
+                No upcoming appointments
               </div>
             )}
           </CardContent>
@@ -135,7 +136,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
                       {session.date}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {t('translatedFrom')}: {session.language}
+                      Translated from: {session.language}
                     </div>
                   </div>
                 ))}
@@ -146,12 +147,12 @@ const DoctorDashboard = ({ user }: { user: any }) => {
                   onClick={() => navigate('/translate')}
                 >
                   <MessageSquare className="h-4 w-4 mr-2" />
-                  {t('translate')}
+                  Translate
                 </Button>
               </div>
             ) : (
               <div className="text-center text-muted-foreground py-4">
-                {t('noRecentTranslations')}
+                No recent translations
               </div>
             )}
           </CardContent>
@@ -160,21 +161,21 @@ const DoctorDashboard = ({ user }: { user: any }) => {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-semibold">{t('quickActions')}</CardTitle>
+          <CardTitle className="font-semibold">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <Button onClick={() => navigate('/translate')} className="h-20 text-lg justify-start px-4">
               <MessageSquare className="h-6 w-6 mr-4" />
-              {t('startTranslation')}
+              Start Translation
             </Button>
             <Button onClick={() => navigate('/appointments')} variant="outline" className="h-20 text-lg justify-start px-4">
               <Calendar className="h-6 w-6 mr-4" />
-              {t('manageAppointments')}
+              Manage Appointments
             </Button>
             <Button onClick={() => navigate('/medical-history')} variant="outline" className="h-20 text-lg justify-start px-4">
               <ClipboardList className="h-6 w-6 mr-4" />
-              {t('viewPatientRecords')}
+              View Patient Records
             </Button>
           </div>
         </CardContent>
@@ -202,7 +203,7 @@ const PatientDashboard = ({ user }: { user: any }) => {
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">{t('profile')}</CardTitle>
+              <CardTitle className="text-lg">Profile</CardTitle>
               <Avatar className="h-10 w-10">
                 <AvatarImage src={user?.avatarUrl} alt={user?.name} />
                 <AvatarFallback className="bg-primary/10 text-primary">{userInitials}</AvatarFallback>
@@ -212,15 +213,15 @@ const PatientDashboard = ({ user }: { user: any }) => {
           <CardContent>
             <div className="space-y-2">
               <div className="grid grid-cols-2">
-                <span className="text-muted-foreground">{t('name')}</span>
+                <span className="text-muted-foreground">Name</span>
                 <span className="font-medium text-right">{user?.name}</span>
               </div>
               <div className="grid grid-cols-2">
-                <span className="text-muted-foreground">{t('age')}</span>
+                <span className="text-muted-foreground">Age</span>
                 <span className="font-medium text-right">{user?.age}</span>
               </div>
               <div className="grid grid-cols-2">
-                <span className="text-muted-foreground">{t('lastLogin')}</span>
+                <span className="text-muted-foreground">Last Login</span>
                 <span className="font-medium text-right">{formatDate(user?.lastLogin)}</span>
               </div>
               <Button 
@@ -230,7 +231,7 @@ const PatientDashboard = ({ user }: { user: any }) => {
                 onClick={() => navigate('/profile')}
               >
                 <User className="h-4 w-4 mr-2" />
-                {t('viewProfile')}
+                View Profile
               </Button>
             </div>
           </CardContent>
@@ -238,7 +239,7 @@ const PatientDashboard = ({ user }: { user: any }) => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">{t('nextAppointment')}</CardTitle>
+            <CardTitle className="text-lg">Upcoming Appointments</CardTitle>
           </CardHeader>
           <CardContent>
             {upcomingAppointment ? (
@@ -256,14 +257,14 @@ const PatientDashboard = ({ user }: { user: any }) => {
                   onClick={() => navigate('/appointments')}
                 >
                   <Calendar className="h-4 w-4 mr-2" />
-                  {t('viewAllAppointments')}
+                  View All Appointments
                 </Button>
               </div>
             ) : (
               <div className="py-4 text-center text-muted-foreground">
-                <p className="mb-4">{t('noUpcomingAppointments')}</p>
+                <p className="mb-4">No upcoming appointments</p>
                 <Button onClick={() => navigate('/appointments')}>
-                  {t('bookAppointment')}
+                  Book Appointment
                 </Button>
               </div>
             )}
@@ -272,18 +273,18 @@ const PatientDashboard = ({ user }: { user: any }) => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">{t('medicalTranslation')}</CardTitle>
+            <CardTitle className="text-lg">Translations</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-center text-muted-foreground py-2 mb-4">
-              {t('translateWithDoctor')}
+              Translate with your doctor
             </p>
             <Button 
               onClick={() => navigate('/translate')} 
               className="w-full"
             >
               <MessageSquare className="h-4 w-4 mr-2" />
-              {t('startTranslation')}
+              Start Translation
             </Button>
           </CardContent>
         </Card>
@@ -291,21 +292,21 @@ const PatientDashboard = ({ user }: { user: any }) => {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t('quickActions')}</CardTitle>
+          <CardTitle>Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <Button onClick={() => navigate('/translate')} className="h-20 text-lg justify-start px-4">
               <MessageSquare className="h-6 w-6 mr-4" />
-              {t('translate')}
+              Translate
             </Button>
             <Button onClick={() => navigate('/appointments')} variant="outline" className="h-20 text-lg justify-start px-4">
               <Calendar className="h-6 w-6 mr-4" />
-              {t('bookAppointment')}
+              Book Appointment
             </Button>
             <Button onClick={() => navigate('/medical-history')} variant="outline" className="h-20 text-lg justify-start px-4">
               <ClipboardList className="h-6 w-6 mr-4" />
-              {t('medicalHistory')}
+              Medical History
             </Button>
           </div>
         </CardContent>
