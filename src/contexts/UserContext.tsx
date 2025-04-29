@@ -13,7 +13,7 @@ export type User = {
   age?: number;
   specialty?: string;
   lastLogin?: Date;
-  avatarUrl?: string; // Add the avatarUrl property to the User type
+  avatarUrl?: string | null; // Define avatarUrl property with proper type
 };
 
 type UserContextType = {
@@ -133,7 +133,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           age: profile.age,
           specialty: profile.specialty,
           lastLogin: profile.last_login ? new Date(profile.last_login) : new Date(),
-          avatarUrl: profile.avatar_url || null, // Add avatarUrl from profile
+          avatarUrl: profile.avatar_url || null, // Map avatar_url from database to avatarUrl in our User type
         };
         setUser(userData);
         console.log("Set user from profile:", userData);
