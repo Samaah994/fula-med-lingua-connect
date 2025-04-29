@@ -13,6 +13,7 @@ export type User = {
   age?: number;
   specialty?: string;
   lastLogin?: Date;
+  avatarUrl?: string; // Add the avatarUrl property to the User type
 };
 
 type UserContextType = {
@@ -32,7 +33,8 @@ const createMockUser = (id: string, email: string): User => ({
   email: email || 'demo@example.com',
   name: "Demo User",
   role: "patient",
-  lastLogin: new Date()
+  lastLogin: new Date(),
+  avatarUrl: null // Initialize with null for the mock user
 });
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
@@ -131,6 +133,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           age: profile.age,
           specialty: profile.specialty,
           lastLogin: profile.last_login ? new Date(profile.last_login) : new Date(),
+          avatarUrl: profile.avatar_url || null, // Add avatarUrl from profile
         };
         setUser(userData);
         console.log("Set user from profile:", userData);
