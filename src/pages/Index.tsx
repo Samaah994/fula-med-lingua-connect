@@ -1,3 +1,4 @@
+
 import { useEffect, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
@@ -132,19 +133,19 @@ const Index = () => {
 
       <section className="w-full py-12 bg-accent/10">
         <div className="container px-4 md:px-6">
-          <h2 className="text-3xl font-bold text-center mb-8">Our Core Features</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">{t('ourCoreFeatures')}</h2>
           <div className="grid gap-6 lg:grid-cols-3">
             <FeatureItem 
-              title="Medical Translation"
-              description="Accurate, real-time translation of medical terms and conversations between English, French, and Fulfulde."
+              title={t('medicalTranslation')}
+              description={t('medicalTranslationDesc')}
             />
             <FeatureItem 
-              title="Voice & Text Support"
-              description="Seamless communication through both voice and text translation, making healthcare more accessible."
+              title={t('voiceTextSupport')}
+              description={t('voiceTextSupportDesc')}
             />
             <FeatureItem 
-              title="Patient-Doctor Connection"
-              description="Bridge the communication gap between healthcare providers and patients for better care outcomes."
+              title={t('patientDoctorConnection')}
+              description={t('patientDoctorConnectionDesc')}
             />
           </div>
         </div>

@@ -6,6 +6,7 @@ import { useUser } from '@/contexts/UserContext';
 import { Calendar, ClipboardList, MessageSquare, User, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const DashboardPage: React.FC = () => {
   const { t } = useLanguage();
@@ -42,26 +43,34 @@ const DoctorDashboard = ({ user }: { user: any }) => {
     { id: '2', patient: 'Ali Hassan', date: 'Apr 18, 2025', language: 'Fulfulde' },
   ];
 
+  const userInitials = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-semibold">Profile Overview</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold">{t('profileOverview')}</CardTitle>
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user?.avatarUrl} alt={user?.name} />
+                <AvatarFallback className="bg-primary/10 text-primary">{userInitials}</AvatarFallback>
+              </Avatar>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="grid grid-cols-2">
                 <span className="text-muted-foreground">{t('name')}</span>
-                <span className="font-medium">{user?.name}</span>
+                <span className="font-medium text-right">{user?.name}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="grid grid-cols-2">
                 <span className="text-muted-foreground">{t('specialty')}</span>
-                <span className="font-medium">{t(user?.specialty || 'notSpecified')}</span>
+                <span className="font-medium text-right">{t(user?.specialty || 'notSpecified')}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="grid grid-cols-2">
                 <span className="text-muted-foreground">{t('lastLogin')}</span>
-                <span className="font-medium">{formatDate(user?.lastLogin)}</span>
+                <span className="font-medium text-right">{formatDate(user?.lastLogin)}</span>
               </div>
               <Button 
                 variant="outline" 
@@ -70,7 +79,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
                 onClick={() => navigate('/profile')}
               >
                 <User className="h-4 w-4 mr-2" />
-                View Profile
+                {t('viewProfile')}
               </Button>
             </div>
           </CardContent>
@@ -151,21 +160,21 @@ const DoctorDashboard = ({ user }: { user: any }) => {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-semibold">Quick Actions</CardTitle>
+          <CardTitle className="font-semibold">{t('quickActions')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <Button onClick={() => navigate('/translate')} className="h-20 text-lg justify-start px-4">
               <MessageSquare className="h-6 w-6 mr-4" />
-              Start Translation
+              {t('startTranslation')}
             </Button>
             <Button onClick={() => navigate('/appointments')} variant="outline" className="h-20 text-lg justify-start px-4">
               <Calendar className="h-6 w-6 mr-4" />
-              Manage Appointments
+              {t('manageAppointments')}
             </Button>
             <Button onClick={() => navigate('/medical-history')} variant="outline" className="h-20 text-lg justify-start px-4">
               <ClipboardList className="h-6 w-6 mr-4" />
-              View Patient Records
+              {t('viewPatientRecords')}
             </Button>
           </div>
         </CardContent>
@@ -185,26 +194,34 @@ const PatientDashboard = ({ user }: { user: any }) => {
     time: '10:30 AM',
   };
 
+  const userInitials = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">{t('profile')}</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">{t('profile')}</CardTitle>
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user?.avatarUrl} alt={user?.name} />
+                <AvatarFallback className="bg-primary/10 text-primary">{userInitials}</AvatarFallback>
+              </Avatar>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('name')}:</span>
-                <span className="font-medium">{user?.name}</span>
+              <div className="grid grid-cols-2">
+                <span className="text-muted-foreground">{t('name')}</span>
+                <span className="font-medium text-right">{user?.name}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('age')}:</span>
-                <span className="font-medium">{user?.age}</span>
+              <div className="grid grid-cols-2">
+                <span className="text-muted-foreground">{t('age')}</span>
+                <span className="font-medium text-right">{user?.age}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t('lastLogin')}:</span>
-                <span className="font-medium">{formatDate(user?.lastLogin)}</span>
+              <div className="grid grid-cols-2">
+                <span className="text-muted-foreground">{t('lastLogin')}</span>
+                <span className="font-medium text-right">{formatDate(user?.lastLogin)}</span>
               </div>
               <Button 
                 variant="outline" 

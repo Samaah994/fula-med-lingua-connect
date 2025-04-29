@@ -9,7 +9,8 @@ import { UserProvider, useUser } from "@/contexts/UserContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useState, lazy, Suspense } from "react";
 
-// Eagerly load the index page for immediate display
+// Eagerly load essential pages for immediate display
+import WelcomePage from "./pages/WelcomePage";
 import Index from "./pages/Index";
 
 // Lazily load other pages for better initial load performance
@@ -51,7 +52,8 @@ const App = () => {
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
                     {/* Public routes */}
-                    <Route path="/" element={<Index />} />
+                    <Route path="/" element={<WelcomePage />} />
+                    <Route path="/home" element={<Index />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/signup" element={<SignupPage />} />
                     

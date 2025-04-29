@@ -35,6 +35,16 @@ export interface TextToSpeechResponse {
   audioUrl: string;
 }
 
+export interface VoiceRecordingRequest {
+  audioBlob: Blob;
+  language: LanguageCode;
+}
+
+export interface VoiceRecordingResponse {
+  text: string;
+  confidence?: number;
+}
+
 export const translateText = async (request: TranslationRequest): Promise<TranslationResponse> => {
   try {
     console.log(`Translating from ${request.source} to ${request.target}: "${request.text}"`);
@@ -122,6 +132,49 @@ export const textToSpeech = async (request: TextToSpeechRequest): Promise<TextTo
   } catch (error) {
     console.error('Text-to-speech error:', error);
     throw new Error('Failed to convert text to speech: ' + (error instanceof Error ? error.message : 'Unknown error'));
+  }
+};
+
+export const processVoiceRecording = async (request: VoiceRecordingRequest): Promise<VoiceRecordingResponse> => {
+  try {
+    console.log(`Processing voice recording in ${request.language}`);
+    
+    // Convert Blob to base64
+    const audioBase64 = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        // Remove data URL prefix (e.g., "data:audio/webm;base64,")
+        const base64Data = base64.split(',')[1];
+        resolve(base64Data);
+      };
+      reader.readAsDataURL(request.audioBlob);
+    });
+    
+    const { data, error } = await supabase.functions.invoke('speech-to-text', {
+      body: {
+        audio: audioBase64,
+        language: request.language
+      }
+    });
+
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw error;
+    }
+    
+    if (!data || !data.text) {
+      console.error('Invalid response from speech-to-text function:', data);
+      throw new Error('No transcription returned from server');
+    }
+
+    return {
+      text: data.text,
+      confidence: data.confidence || 0.9,
+    };
+  } catch (error) {
+    console.error('Voice processing error:', error);
+    throw new Error('Failed to process voice recording: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 };
 
