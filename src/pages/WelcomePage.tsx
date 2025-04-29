@@ -18,7 +18,7 @@ const WelcomePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-accent to-white text-foreground">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-accent to-white dark:from-accent/30 dark:to-background text-foreground">
       <header className="w-full border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center px-4 sm:px-8">
           <Logo />
@@ -78,6 +78,7 @@ const WelcomePage = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.9, duration: 0.3 }}
               whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <Button 
                 size="lg" 
@@ -91,8 +92,8 @@ const WelcomePage = () => {
         )}
       </main>
 
-      <footer className="border-t py-4 sm:py-6 mt-8">
-        <div className="container flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row px-4">
+      <footer className="border-t py-4 sm:py-6 mt-auto">
+        <div className="container flex flex-col md:flex-row items-center justify-between gap-4 md:h-16 px-4">
           <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
             &copy; 2025 FulaMed. {t('allRightsReserved')}
           </p>

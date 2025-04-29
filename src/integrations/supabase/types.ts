@@ -221,6 +221,42 @@ export type Database = {
           },
         ]
       }
+      voice_recordings: {
+        Row: {
+          audio_url: string
+          created_at: string
+          id: string
+          source_language: string
+          target_language: string
+          transcription: string | null
+          translation: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audio_url: string
+          created_at?: string
+          id?: string
+          source_language: string
+          target_language: string
+          transcription?: string | null
+          translation?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audio_url?: string
+          created_at?: string
+          id?: string
+          source_language?: string
+          target_language?: string
+          transcription?: string | null
+          translation?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

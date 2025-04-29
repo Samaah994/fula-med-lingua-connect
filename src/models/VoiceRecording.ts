@@ -25,8 +25,8 @@ export const storeVoiceRecording = async (params: CreateVoiceRecordingParams): P
   try {
     const { userId, audioBlob, sourceLanguage, targetLanguage, transcription, translation } = params;
 
-    // Generate a unique file name
-    const fileName = `${userId}-${Date.now()}.webm`;
+    // Generate a unique file name with user ID as the folder name
+    const fileName = `${userId}/${Date.now()}.webm`;
     const filePath = `voice-recordings/${fileName}`;
 
     // Upload the audio blob to Supabase storage

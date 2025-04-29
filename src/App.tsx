@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { UserProvider, useUser } from "@/contexts/UserContext";
+import { UserProvider } from "@/contexts/UserContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useState, lazy, Suspense } from "react";
 
@@ -25,7 +25,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Ultra-simplified loading fallback for faster rendering
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-accent to-white">
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-accent to-white dark:from-accent/30 dark:to-background">
     <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
   </div>
 );
