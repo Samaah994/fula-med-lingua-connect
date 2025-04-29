@@ -25,7 +25,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Ultra-simplified loading fallback for faster rendering
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center">
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-accent to-white">
     <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
   </div>
 );

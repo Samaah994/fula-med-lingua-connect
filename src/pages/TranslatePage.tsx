@@ -15,10 +15,13 @@ import {
   textToSpeech, 
   languageMetadata, 
   LanguageCode,
-  TranslationRequest 
+  TranslationRequest,
+  processVoiceRecording 
 } from '@/services/translationService';
 import { useMutation } from '@tanstack/react-query';
 import TranslationInfo from '@/components/TranslationInfo';
+import { storeVoiceRecording } from '@/models/VoiceRecording';
+import { motion } from 'framer-motion';
 
 const TranslatePage: React.FC = () => {
   const { t, language } = useLanguage();
@@ -151,136 +154,142 @@ const TextTranslation: React.FC = () => {
   }));
 
   return (
-    <Card className="bg-card">
-      <CardContent className="pt-6">
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">Medical Translation</h2>
-            <TranslationInfo sourceLang={fromLang} targetLang={toLang} />
-          </div>
-          <p className="text-muted-foreground">
-            Translate medical conversations between English, French, and Fulfulde with high accuracy.
-          </p>
-        </div>
-        
-        <div className="space-y-4">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="w-full md:w-5/12">
-              <label className="text-sm font-medium mb-2 block">
-                {t('from')}:
-              </label>
-              <Select
-                value={fromLang}
-                onValueChange={(value: LanguageCode) => {
-                  setFromLang(value);
-                  if (value === toLang) {
-                    const otherLangs = ['en', 'ff', 'fr'].filter(l => l !== value) as LanguageCode[];
-                    setToLang(otherLangs[0]);
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {languages.map(lang => (
-                    <SelectItem key={lang.code} value={lang.code}>
-                      {lang.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="bg-card">
+        <CardContent className="pt-6">
+          <div className="mb-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-semibold">Medical Translation</h2>
+              <TranslationInfo sourceLang={fromLang} targetLang={toLang} />
             </div>
-            
-            <div className="self-center hidden md:block">
-              <ArrowRight className="w-6 h-6" />
-            </div>
-            
-            <div className="w-full md:w-5/12">
-              <label className="text-sm font-medium mb-2 block">
-                {t('to')}:
-              </label>
-              <Select
-                value={toLang}
-                onValueChange={(value: LanguageCode) => {
-                  setToLang(value);
-                  if (value === fromLang) {
-                    const otherLangs = ['en', 'ff', 'fr'].filter(l => l !== value) as LanguageCode[];
-                    setFromLang(otherLangs[0]);
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {languages.map(lang => (
-                    <SelectItem key={lang.code} value={lang.code}>
-                      {lang.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <p className="text-muted-foreground">
+              Translate medical conversations between English, French, and Fulfulde with high accuracy.
+            </p>
           </div>
           
           <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                {t('inputText')}:
-              </label>
-              <Textarea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder={t('enterTextToTranslate')}
-                className="min-h-32"
-              />
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+              <div className="w-full md:w-5/12">
+                <label className="text-sm font-medium mb-2 block">
+                  {t('from')}:
+                </label>
+                <Select
+                  value={fromLang}
+                  onValueChange={(value: LanguageCode) => {
+                    setFromLang(value);
+                    if (value === toLang) {
+                      const otherLangs = ['en', 'ff', 'fr'].filter(l => l !== value) as LanguageCode[];
+                      setToLang(otherLangs[0]);
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {languages.map(lang => (
+                      <SelectItem key={lang.code} value={lang.code}>
+                        {lang.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="self-center hidden md:block">
+                <ArrowRight className="w-6 h-6" />
+              </div>
+              
+              <div className="w-full md:w-5/12">
+                <label className="text-sm font-medium mb-2 block">
+                  {t('to')}:
+                </label>
+                <Select
+                  value={toLang}
+                  onValueChange={(value: LanguageCode) => {
+                    setToLang(value);
+                    if (value === fromLang) {
+                      const otherLangs = ['en', 'ff', 'fr'].filter(l => l !== value) as LanguageCode[];
+                      setFromLang(otherLangs[0]);
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {languages.map(lang => (
+                      <SelectItem key={lang.code} value={lang.code}>
+                        {lang.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             
-            <Button 
-              onClick={handleTranslate} 
-              className="w-full" 
-              disabled={translateMutation.isPending || !inputText.trim()}>
-              {translateMutation.isPending ? (
-                <>
-                  <span className="animate-spin mr-2">⟳</span>
-                  {t('translating')}...
-                </>
-              ) : t('translate')}
-            </Button>
-            
-            <div>
-              <div className="flex justify-between mb-2">
-                <label className="text-sm font-medium">
-                  {t('translationResult')}:
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  {t('inputText')}:
                 </label>
-                {outputText && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handlePlayAudio}
-                    disabled={ttsMutation.isPending}>
-                    {isPlaying ? (
-                      <VolumeX className="h-4 w-4 mr-2" />
-                    ) : (
-                      <Volume2 className="h-4 w-4 mr-2" />
-                    )}
-                    {isPlaying ? t('stopAudio') : t('playAudio')}
-                  </Button>
-                )}
+                <Textarea
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  placeholder={t('enterTextToTranslate')}
+                  className="min-h-32"
+                />
               </div>
-              <Textarea
-                value={outputText}
-                readOnly
-                placeholder={t('translationWillAppearHere')}
-                className="min-h-32"
-              />
-              <audio ref={audioRef} className="hidden" />
+              
+              <Button 
+                onClick={handleTranslate} 
+                className="w-full" 
+                disabled={translateMutation.isPending || !inputText.trim()}>
+                {translateMutation.isPending ? (
+                  <>
+                    <span className="animate-spin mr-2">⟳</span>
+                    {t('translating')}...
+                  </>
+                ) : t('translate')}
+              </Button>
+              
+              <div>
+                <div className="flex justify-between mb-2">
+                  <label className="text-sm font-medium">
+                    {t('translationResult')}:
+                  </label>
+                  {outputText && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handlePlayAudio}
+                      disabled={ttsMutation.isPending}>
+                      {isPlaying ? (
+                        <VolumeX className="h-4 w-4 mr-2" />
+                      ) : (
+                        <Volume2 className="h-4 w-4 mr-2" />
+                      )}
+                      {isPlaying ? t('stopAudio') : t('playAudio')}
+                    </Button>
+                  )}
+                </div>
+                <Textarea
+                  value={outputText}
+                  readOnly
+                  placeholder={t('translationWillAppearHere')}
+                  className="min-h-32"
+                />
+                <audio ref={audioRef} className="hidden" />
+              </div>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
@@ -295,15 +304,74 @@ const VoiceTranslation: React.FC = () => {
   const [fromLang, setFromLang] = useState<LanguageCode>(user?.role === 'doctor' ? 'en' : 'ff');
   const [toLang, setToLang] = useState<LanguageCode>(user?.role === 'doctor' ? 'ff' : 'fr');
   const [micPermission, setMicPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioBlob = useRef<Blob | null>(null);
 
   const languages = [
     { code: 'en' as LanguageCode, name: 'English' },
     { code: 'ff' as LanguageCode, name: 'Fulfulde' },
     { code: 'fr' as LanguageCode, name: 'Français' }
   ];
+
+  const storeRecordingMutation = useMutation({
+    mutationFn: async (blob: Blob) => {
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+      
+      return storeVoiceRecording({
+        userId: user.id,
+        audioBlob: blob,
+        sourceLanguage: fromLang,
+        targetLanguage: toLang,
+        transcription,
+        translation
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Recording saved",
+        description: "Your voice recording has been saved for analysis.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Failed to save recording",
+        description: error.message,
+      });
+    }
+  });
+
+  const voiceToTextMutation = useMutation({
+    mutationFn: processVoiceRecording,
+    onSuccess: (data) => {
+      setTranscription(data.text);
+      
+      // After getting transcription, save the recording
+      if (audioBlob.current && user?.id) {
+        storeRecordingMutation.mutate(audioBlob.current);
+      }
+      
+      // For demo purposes, simulate a translation
+      setTimeout(() => {
+        setTranslation(`[Translated from ${fromLang} to ${toLang}] ${data.text}`);
+        setIsProcessing(false);
+      }, 1000);
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Transcription failed",
+        description: error.message,
+      });
+      setIsProcessing(false);
+    }
+  });
 
   useEffect(() => {
     navigator.mediaDevices.enumerateDevices()
@@ -332,14 +400,22 @@ const VoiceTranslation: React.FC = () => {
       };
       
       mediaRecorderRef.current.onstop = () => {
-        setTimeout(() => {
-          const mockText = "This is a sample transcription of speech that would be processed in a real application.";
-          setTranscription(mockText);
-          
-          setTimeout(() => {
-            setTranslation(`[Translated from ${fromLang} to ${toLang}] ${mockText}`);
-          }, 500);
-        }, 1000);
+        setIsProcessing(true);
+        
+        const recordingBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        audioBlob.current = recordingBlob;
+        
+        // Create URL for preview
+        if (audioRef.current) {
+          const audioURL = URL.createObjectURL(recordingBlob);
+          audioRef.current.src = audioURL;
+        }
+        
+        // Process the voice recording for transcription
+        voiceToTextMutation.mutate({
+          audioBlob: recordingBlob,
+          language: fromLang
+        });
       };
       
       mediaRecorderRef.current.start();
@@ -390,14 +466,23 @@ const VoiceTranslation: React.FC = () => {
   };
 
   const playTranslation = () => {
-    toast({
-      title: "Playing audio",
-      description: "In a real application, this would play the translated audio.",
-    });
+    if (audioRef.current) {
+      audioRef.current.play();
+    } else {
+      toast({
+        title: "Playing audio",
+        description: "In a real application, this would play the translated audio.",
+      });
+    }
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <Card>
         <CardContent className="pt-6">
           <div className="mb-6">
@@ -456,29 +541,62 @@ const VoiceTranslation: React.FC = () => {
           </div>
           
           <div className="mb-6 flex justify-center">
-            <Button
-              size="lg"
-              variant={isRecording ? "destructive" : "default"}
-              className="h-24 w-24 rounded-full"
+            <motion.button
+              className={`h-24 w-24 rounded-full flex items-center justify-center ${isRecording ? 'bg-destructive hover:bg-destructive/90' : 'bg-primary hover:bg-primary/90'} text-white`}
               onClick={toggleRecording}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               {isRecording ? (
                 <MicOff className="h-10 w-10" />
               ) : (
                 <Mic className="h-10 w-10" />
               )}
-            </Button>
+            </motion.button>
           </div>
           
           <div className="text-center mb-6">
             {isRecording ? (
               <div className="flex flex-col items-center">
                 <div className="flex space-x-1 mb-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse delay-75"></div>
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse delay-150"></div>
+                  <motion.div 
+                    className="w-2 h-2 bg-red-500 rounded-full"
+                    animate={{ scale: [1, 1.5, 1] }}
+                    transition={{ repeat: Infinity, duration: 1 }}
+                  />
+                  <motion.div 
+                    className="w-2 h-2 bg-red-500 rounded-full"
+                    animate={{ scale: [1, 1.5, 1] }}
+                    transition={{ repeat: Infinity, duration: 1, delay: 0.3 }}
+                  />
+                  <motion.div 
+                    className="w-2 h-2 bg-red-500 rounded-full"
+                    animate={{ scale: [1, 1.5, 1] }}
+                    transition={{ repeat: Infinity, duration: 1, delay: 0.6 }}
+                  />
                 </div>
                 <p className="text-sm text-red-500">{t('recording')}...</p>
+              </div>
+            ) : isProcessing ? (
+              <div className="flex flex-col items-center">
+                <div className="flex space-x-1 mb-2">
+                  <motion.div 
+                    className="w-2 h-2 bg-primary rounded-full"
+                    animate={{ scale: [1, 1.5, 1] }}
+                    transition={{ repeat: Infinity, duration: 1 }}
+                  />
+                  <motion.div 
+                    className="w-2 h-2 bg-primary rounded-full"
+                    animate={{ scale: [1, 1.5, 1] }}
+                    transition={{ repeat: Infinity, duration: 1, delay: 0.3 }}
+                  />
+                  <motion.div 
+                    className="w-2 h-2 bg-primary rounded-full"
+                    animate={{ scale: [1, 1.5, 1] }}
+                    transition={{ repeat: Infinity, duration: 1, delay: 0.6 }}
+                  />
+                </div>
+                <p className="text-sm text-primary">Processing your speech...</p>
               </div>
             ) : micPermission === 'denied' ? (
               <p className="text-sm text-destructive">{t('microphoneAccessDenied')}</p>
@@ -518,11 +636,12 @@ const VoiceTranslation: React.FC = () => {
                 placeholder={t('translationWillAppearHere')}
                 className="min-h-24 dark:bg-gray-800"
               />
+              <audio ref={audioRef} className="hidden" controls />
             </div>
           </div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 };
 
