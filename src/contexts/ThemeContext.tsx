@@ -27,6 +27,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const root = window.document.documentElement;
     
+    // Apply theme with smooth transition
+    root.classList.add('transition-colors');
+    root.style.setProperty('--theme-transition', 'true');
+    
     // Update root class
     if (theme === 'dark') {
       root.classList.add('dark');
@@ -36,6 +40,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     
     // Save theme preference
     localStorage.setItem('theme', theme);
+    
+    // Remove transition class after theme change completes
+    const transitionTimeout = setTimeout(() => {
+      root.classList.remove('transition-colors');
+      root.style.removeProperty('--theme-transition');
+    }, 500);
+    
+    return () => clearTimeout(transitionTimeout);
   }, [theme]);
 
   // Listen for system theme changes
