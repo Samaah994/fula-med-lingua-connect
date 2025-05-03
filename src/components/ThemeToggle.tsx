@@ -21,11 +21,10 @@ export function ThemeToggle() {
           <motion.div
             initial={false}
             animate={{ 
-              rotate: theme === "light" ? 0 : -90,
+              rotateY: theme === "light" ? 0 : 180,
               opacity: theme === "light" ? 1 : 0,
-              scale: theme === "light" ? 1 : 0 
             }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
             className="absolute inset-0 flex items-center justify-center"
           >
             <Sun className="h-[1.2rem] w-[1.2rem]" />
@@ -34,11 +33,10 @@ export function ThemeToggle() {
           <motion.div
             initial={false}
             animate={{ 
-              rotate: theme === "dark" ? 0 : 90,
+              rotateY: theme === "dark" ? 0 : -180,
               opacity: theme === "dark" ? 1 : 0,
-              scale: theme === "dark" ? 1 : 0 
             }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
             className="absolute inset-0 flex items-center justify-center"
           >
             <Moon className="h-[1.2rem] w-[1.2rem]" />
