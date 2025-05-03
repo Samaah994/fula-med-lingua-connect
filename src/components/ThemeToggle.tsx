@@ -3,7 +3,7 @@ import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -16,26 +16,29 @@ export function ThemeToggle() {
           size="icon"
           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
           aria-label="Toggle theme"
-          className="relative overflow-hidden rounded-full"
+          className="relative overflow-hidden rounded-full border-muted bg-background"
         >
-          <motion.div
-            key={theme}
-            initial={{ rotateY: theme === "light" ? -90 : 90, opacity: 0 }}
-            animate={{ rotateY: 0, opacity: 1 }}
-            exit={{ rotateY: theme === "light" ? 90 : -90, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            style={{ 
-              perspective: "600px",
-              transformStyle: "preserve-3d"
-            }}
-            className="flex items-center justify-center"
-          >
-            {theme === "light" ? (
-              <Sun className="h-[1.2rem] w-[1.2rem] text-amber-500" />
-            ) : (
-              <Moon className="h-[1.2rem] w-[1.2rem] text-slate-300" />
-            )}
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={theme}
+              initial={{ opacity: 0, y: -10, scale: 0.5 }}
+              animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+              exit={{ opacity: 0, y: 10, scale: 0.5 }}
+              transition={{ 
+                duration: 0.35, 
+                ease: "easeOut",
+                type: "spring",
+                stiffness: 200
+              }}
+              className="flex items-center justify-center h-full w-full"
+            >
+              {theme === "light" ? (
+                <Sun className="h-[1.2rem] w-[1.2rem] text-amber-500" />
+              ) : (
+                <Moon className="h-[1.2rem] w-[1.2rem] text-indigo-200" />
+              )}
+            </motion.div>
+          </AnimatePresence>
           <span className="sr-only">Toggle theme</span>
         </Button>
       </TooltipTrigger>

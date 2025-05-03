@@ -46,16 +46,16 @@
   }
 
   .dark {
-    --background: 222.2 47.4% 11.2%;
+    --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 47.4% 11.2%;
+    --card: 222 47% 10%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 47.4% 11.2%;
+    --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -92,15 +92,36 @@
 
   body {
     @apply bg-background text-foreground;
-    transition: background-color 0.3s ease, color 0.3s ease;
   }
   
-  /* Apply smooth transitions to common UI elements */
-  button, a, input, select, textarea, .card, .glass-morphism {
-    transition: background-color 0.3s ease, 
-                color 0.3s ease, 
-                border-color 0.3s ease, 
-                box-shadow 0.3s ease;
+  /* Theme transition class */
+  .theme-transition,
+  .theme-transition *,
+  .theme-transition *::before,
+  .theme-transition *::after {
+    transition: background-color 0.5s ease, 
+                border-color 0.5s ease,
+                color 0.5s ease, 
+                fill 0.5s ease,
+                stroke 0.5s ease,
+                opacity 0.5s ease,
+                box-shadow 0.5s ease !important;
+  }
+  
+  /* Better form controls for dark mode */
+  .dark input,
+  .dark select,
+  .dark textarea {
+    @apply bg-secondary border-secondary/80 text-foreground;
+  }
+  
+  /* Button hover effects in dark mode */
+  .dark .button-primary {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground;
+  }
+  
+  .dark .button-secondary {
+    @apply bg-secondary hover:bg-secondary/90 text-secondary-foreground;
   }
 }
 
@@ -114,6 +135,7 @@
     text-wrap: pretty;
   }
   
+  /* Enhanced glass morphism for dark mode */
   .glass-morphism {
     @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3)];
   }
@@ -124,19 +146,39 @@
   
   /* Dark mode specific utilities */
   .dark .hover-highlight {
-    @apply hover:bg-white/10;
+    @apply hover:bg-secondary/50 transition-colors;
   }
   
   .dark .card-hover {
-    @apply hover:bg-secondary/70;
+    @apply hover:bg-secondary/70 transition-colors;
   }
   
   .dark .input-bg {
-    @apply bg-secondary border-secondary;
+    @apply bg-secondary/80 border-secondary/50;
   }
   
   .dark .button-accent {
-    @apply bg-primary/20 hover:bg-primary/30 text-primary;
+    @apply bg-primary/20 hover:bg-primary/30 text-primary-foreground;
+  }
+  
+  /* Dark mode specific backgrounds */
+  .dark .bg-gradient-hero {
+    background: linear-gradient(to bottom, rgba(25, 33, 48, 0.9), rgba(14, 21, 35, 0.95));
+  }
+  
+  .dark .bg-gradient-card {
+    background: linear-gradient(to bottom right, rgba(40, 51, 69, 0.7), rgba(25, 33, 48, 0.8));
+  }
+
+  /* Dark mode gradients */
+  .dark .from-accent {
+    --tw-gradient-from: hsl(var(--accent) / 0.05) var(--tw-gradient-from-position);
+    --tw-gradient-to: hsl(var(--accent) / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+  
+  .dark .to-white {
+    --tw-gradient-to: var(--background) var(--tw-gradient-to-position);
   }
 }
 
@@ -158,14 +200,7 @@
   animation-delay: 0.4s;
 }
 
-/* Theme transition */
-.transition-colors {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 600ms;
-}
-
-/* Improved theme toggle animation */
+/* Theme toggle specific animations */
 @keyframes fadeRotate {
   from {
     opacity: 0;
@@ -181,11 +216,19 @@
   animation: fadeRotate 0.6s ease forwards;
 }
 
-/* Dark theme specific gradients */
-.dark .bg-gradient-hero {
-  background: linear-gradient(to bottom, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
+/* Dark theme cards */
+.dark .card, 
+.dark .bg-card {
+  @apply bg-card border-border/40 shadow-lg shadow-black/10;
 }
 
-.dark .bg-gradient-card {
-  background: linear-gradient(to bottom right, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8));
+/* Dark theme header and footer */
+.dark header,
+.dark footer {
+  @apply border-border/30 bg-background/95;
+}
+
+/* Login/Signup pages dark mode */
+.dark .min-h-screen.bg-gradient-to-b.from-accent.to-white {
+  @apply from-background via-background to-secondary/10;
 }

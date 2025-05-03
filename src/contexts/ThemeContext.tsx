@@ -27,30 +27,23 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const root = window.document.documentElement;
     
-    // Apply theme immediately but with smooth transition
-    const transitionClass = 'transition-colors';
+    // Apply theme transition class
+    root.classList.add('theme-transition');
     
-    if (!root.classList.contains(transitionClass)) {
-      root.classList.add(transitionClass);
+    // Update document theme class
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
     }
-    
-    // Update root class with small delay to allow transition to initialize
-    setTimeout(() => {
-      if (theme === 'dark') {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
-    }, 10);
     
     // Save theme preference
     localStorage.setItem('theme', theme);
     
-    // Cleanup transition class after transition completes
+    // Remove transition class after animation completes
     const transitionTimeout = setTimeout(() => {
-      root.classList.remove('transition-colors');
-      root.style.removeProperty('--theme-transition');
-    }, 500);
+      root.classList.remove('theme-transition');
+    }, 600);
     
     return () => clearTimeout(transitionTimeout);
   }, [theme]);
