@@ -7,41 +7,35 @@ import { motion } from "framer-motion";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-
+  
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
           aria-label="Toggle theme"
-          className="relative overflow-hidden"
+          className="relative overflow-hidden rounded-full"
         >
           <motion.div
-            initial={false}
-            animate={{ 
-              rotateY: theme === "light" ? 0 : 180,
-              opacity: theme === "light" ? 1 : 0,
+            key={theme}
+            initial={{ rotateY: theme === "light" ? -90 : 90, opacity: 0 }}
+            animate={{ rotateY: 0, opacity: 1 }}
+            exit={{ rotateY: theme === "light" ? 90 : -90, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            style={{ 
+              perspective: "600px",
+              transformStyle: "preserve-3d"
             }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
-            className="absolute inset-0 flex items-center justify-center"
+            className="flex items-center justify-center"
           >
-            <Sun className="h-[1.2rem] w-[1.2rem]" />
+            {theme === "light" ? (
+              <Sun className="h-[1.2rem] w-[1.2rem] text-amber-500" />
+            ) : (
+              <Moon className="h-[1.2rem] w-[1.2rem] text-slate-300" />
+            )}
           </motion.div>
-          
-          <motion.div
-            initial={false}
-            animate={{ 
-              rotateY: theme === "dark" ? 0 : -180,
-              opacity: theme === "dark" ? 1 : 0,
-            }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <Moon className="h-[1.2rem] w-[1.2rem]" />
-          </motion.div>
-          
           <span className="sr-only">Toggle theme</span>
         </Button>
       </TooltipTrigger>
