@@ -94,6 +94,14 @@
     @apply bg-background text-foreground;
   }
   
+  /* Improved placeholder styling for dark mode */
+  .dark input::placeholder,
+  .dark textarea::placeholder,
+  .dark select::placeholder {
+    color: hsl(var(--muted-foreground) / 0.8);
+    opacity: 1;
+  }
+  
   /* Theme transition class */
   .theme-transition,
   .theme-transition *,
