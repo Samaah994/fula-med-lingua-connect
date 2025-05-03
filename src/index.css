@@ -216,10 +216,12 @@
   animation: fadeRotate 0.6s ease forwards;
 }
 
-/* Dark theme cards */
+/* Dark theme cards - Fixed circular dependency */
 .dark .card, 
 .dark .bg-card {
-  @apply bg-card border-border/40 shadow-lg shadow-black/10;
+  background-color: hsl(var(--card));
+  border-color: hsl(var(--border) / 0.4);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
 /* Dark theme header and footer */

@@ -21,14 +21,12 @@ export function ThemeToggle() {
           <AnimatePresence mode="wait">
             <motion.div
               key={theme}
-              initial={{ opacity: 0, y: -10, scale: 0.5 }}
-              animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
-              exit={{ opacity: 0, y: 10, scale: 0.5 }}
+              initial={{ opacity: 0, rotateY: 90 }}
+              animate={{ opacity: 1, rotateY: 0 }}
+              exit={{ opacity: 0, rotateY: -90 }}
               transition={{ 
-                duration: 0.35, 
+                duration: 0.4, 
                 ease: "easeOut",
-                type: "spring",
-                stiffness: 200
               }}
               className="flex items-center justify-center h-full w-full"
             >

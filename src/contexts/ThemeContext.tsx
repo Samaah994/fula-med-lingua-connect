@@ -40,7 +40,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     // Save theme preference
     localStorage.setItem('theme', theme);
     
-    // Remove transition class after animation completes
+    // Remove transition class after animation completes to avoid transition on page load
     const transitionTimeout = setTimeout(() => {
       root.classList.remove('theme-transition');
     }, 600);
