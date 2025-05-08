@@ -202,23 +202,30 @@ export const processVoiceRecording = async (request: VoiceRecordingRequest): Pro
   }
 };
 
-// New function to submit translation feedback
+// Updated function to submit translation feedback that properly uses the new table
 export const submitTranslationFeedback = async (feedback: FeedbackRequest): Promise<void> => {
   try {
     console.log(`Submitting translation feedback for ${feedback.source} to ${feedback.target} translation`);
     
-    // Store feedback in Supabase or local storage
-    await supabase.from('translation_feedback').insert({
-      original_text: feedback.originalText,
-      translated_text: feedback.translatedText,
-      source_language: feedback.source,
-      target_language: feedback.target,
-      rating: feedback.rating,
-      comments: feedback.comments || null,
-      user_id: feedback.userId || null,
-      translation_id: feedback.translationId || null,
-      created_at: new Date()
-    });
+    // Store feedback in Supabase using the correct table name and format
+    const { error } = await supabase
+      .from('translation_feedback')
+      .insert({
+        original_text: feedback.originalText,
+        translated_text: feedback.translatedText,
+        source_language: feedback.source,
+        target_language: feedback.target,
+        rating: feedback.rating,
+        comments: feedback.comments || null,
+        user_id: feedback.userId || null,
+        translation_id: feedback.translationId || null,
+        created_at: new Date().toISOString()
+      });
+    
+    if (error) {
+      console.error('Supabase error submitting feedback:', error);
+      throw error;
+    }
     
   } catch (error) {
     console.error('Feedback submission error:', error);

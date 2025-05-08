@@ -128,6 +128,45 @@ export type Database = {
         }
         Relationships: []
       }
+      translation_feedback: {
+        Row: {
+          comments: string | null
+          created_at: string | null
+          id: string
+          original_text: string
+          rating: string
+          source_language: string
+          target_language: string
+          translated_text: string
+          translation_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string | null
+          id?: string
+          original_text: string
+          rating: string
+          source_language: string
+          target_language: string
+          translated_text: string
+          translation_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string | null
+          id?: string
+          original_text?: string
+          rating?: string
+          source_language?: string
+          target_language?: string
+          translated_text?: string
+          translation_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       translation_messages: {
         Row: {
           created_at: string | null
