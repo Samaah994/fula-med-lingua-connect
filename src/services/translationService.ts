@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 // Language codes supported by the translation service
@@ -53,38 +52,48 @@ export const translateText = async (request: TranslationRequest): Promise<Transl
     if (!request.text || !request.text.trim()) {
       throw new Error('Text to translate cannot be empty');
     }
-    
-    const { data, error } = await supabase.functions.invoke('translate', {
-      body: {
-        text: request.text,
-        source: request.source,
-        target: request.target
+
+    // Currently only support English-Fulfulde translations
+    if ((request.source === 'en' && request.target === 'ff') || (request.source === 'ff' && request.target === 'en')) {
+      const direction = request.source === 'en' && request.target === 'ff' ? 'en_to_ff' : 'ff_to_en';
+      
+      // Call local NLLB translation model API
+      const response = await fetch('http://localhost:8000/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: request.text,
+          direction: direction
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Translation API error: ${errorText}`);
       }
-    });
-
-    if (error) {
-      console.error('Supabase function error:', error);
-      throw error;
+      
+      const data = await response.json();
+      
+      if (!data || !data.translation) {
+        throw new Error('No translation returned from server');
+      }
+      
+      return {
+        originalText: request.text,
+        translatedText: data.translation,
+        source: request.source,
+        target: request.target,
+        model: 'local-nllb',
+      };
+    } else {
+      // For other language pairs, we could either:
+      // 1. Call a different API
+      // 2. Use a fallback translation service
+      // 3. Return an error
+      throw new Error(`Translation from ${request.source} to ${request.target} is not supported by local models`);
     }
-    
-    if (!data || !data.translatedText) {
-      console.error('Invalid response from translation function:', data);
-      throw new Error('No translation returned from server');
-    }
-
-    // Determine model type - we're using a hybrid approach for Fulfulde
-    const modelType = request.target === 'ff' || request.source === 'ff' 
-      ? "hybrid-oldi-gpt4o" 
-      : "gpt-4o-mini";
-
-    return {
-      originalText: request.text,
-      translatedText: data.translatedText,
-      source: request.source,
-      target: request.target,
-      confidence: 0.95,
-      model: modelType,
-    };
   } catch (error) {
     console.error('Translation error:', error);
     throw new Error('Failed to translate text: ' + (error instanceof Error ? error.message : 'Unknown error'));
@@ -100,6 +109,8 @@ export const textToSpeech = async (request: TextToSpeechRequest): Promise<TextTo
       throw new Error('Text for speech conversion cannot be empty');
     }
     
+    // Placeholder implementation - to be replaced later with local TTS model
+    // For now, we'll keep using the Supabase Edge Function as before
     const { data, error } = await supabase.functions.invoke('text-to-speech', {
       body: {
         text: request.text,
@@ -139,38 +150,30 @@ export const processVoiceRecording = async (request: VoiceRecordingRequest): Pro
   try {
     console.log(`Processing voice recording in ${request.language}`);
     
-    // Convert Blob to base64
-    const audioBase64 = await new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        // Remove data URL prefix (e.g., "data:audio/webm;base64,")
-        const base64Data = base64.split(',')[1];
-        resolve(base64Data);
-      };
-      reader.readAsDataURL(request.audioBlob);
+    // Create FormData with audio blob
+    const formData = new FormData();
+    formData.append('file', request.audioBlob, 'audio.webm');
+    
+    // Send to local Whisper STT model API
+    const response = await fetch('http://localhost:8001/stt', {
+      method: 'POST',
+      body: formData
     });
     
-    const { data, error } = await supabase.functions.invoke('speech-to-text', {
-      body: {
-        audio: audioBase64,
-        language: request.language
-      }
-    });
-
-    if (error) {
-      console.error('Supabase function error:', error);
-      throw error;
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Speech-to-text API error: ${errorText}`);
     }
     
+    const data = await response.json();
+    
     if (!data || !data.text) {
-      console.error('Invalid response from speech-to-text function:', data);
       throw new Error('No transcription returned from server');
     }
 
     return {
       text: data.text,
-      confidence: data.confidence || 0.9,
+      confidence: 0.95 // Placeholder confidence value
     };
   } catch (error) {
     console.error('Voice processing error:', error);
@@ -195,7 +198,7 @@ export const languageMetadata = {
     voiceOptions: ["shimmer", "alloy"],
     sttSupport: "limited", // Limited STT support
     ttsSupport: "limited", // Limited TTS support
-    dataSource: "openlanguagedata/oldi_seed" // Source of translation data
+    dataSource: "local-nllb-model" // Source of translation data
   },
   fr: {
     name: "French",
