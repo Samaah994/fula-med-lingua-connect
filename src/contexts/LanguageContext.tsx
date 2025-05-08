@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, ReactNode } from "react";
 
 // Define available languages
@@ -398,6 +399,66 @@ export const translations: TranslationDict = {
     en: "Stop Audio",
     ff: "Dartin Nanngitaade",
     fr: "Arrêter l'Audio"
+  },
+  translating: {
+    en: "Translating",
+    ff: "Ina firtoo",
+    fr: "En cours de traduction"
+  },
+  translationFeedback: {
+    en: "Translation Feedback",
+    ff: "Jaabtol e Firtugol",
+    fr: "Commentaire sur la Traduction"
+  },
+  feedbackReceived: {
+    en: "Feedback Received",
+    ff: "Jaabtol heɓaama",
+    fr: "Commentaire Reçu"
+  },
+  thankYouForFeedback: {
+    en: "Thank you for your feedback!",
+    ff: "A jaaraama e jaabtol maa!",
+    fr: "Merci pour votre commentaire!"
+  },
+  thankYouForDetailedFeedback: {
+    en: "Thank you for your detailed feedback!",
+    ff: "A jaaraama e jaabtol maa keewngol!",
+    fr: "Merci pour votre commentaire détaillé!"
+  },
+  feedbackError: {
+    en: "Feedback Error",
+    ff: "Juumre Jaabtol",
+    fr: "Erreur de Commentaire"
+  },
+  errorSubmittingFeedback: {
+    en: "There was an error submitting your feedback. Please try again.",
+    ff: "Waɗii juumre e nelditgol jaabtol maa. Tiiɗno fuɗɗito.",
+    fr: "Une erreur s'est produite lors de l'envoi de votre commentaire. Veuillez réessayer."
+  },
+  selectRating: {
+    en: "Select Rating",
+    ff: "Suɓo Foddeeji",
+    fr: "Sélectionner une Évaluation"
+  },
+  pleaseSelectRatingFirst: {
+    en: "Please select a rating before submitting your feedback.",
+    ff: "Tiiɗno suɓo foddeeji hade nelditde jaabtol maa.",
+    fr: "Veuillez sélectionner une évaluation avant de soumettre votre commentaire."
+  },
+  accurate: {
+    en: "Accurate",
+    ff: "Feewaani",
+    fr: "Précis"
+  },
+  inaccurate: {
+    en: "Inaccurate",
+    ff: "Feewaani",
+    fr: "Imprécis"
+  },
+  additionalFeedback: {
+    en: "Additional comments (optional)",
+    ff: "Jaabtol kesol (so a yiɗi)",
+    fr: "Commentaires supplémentaires (facultatif)"
   }
 };
 

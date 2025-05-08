@@ -1,5 +1,6 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowRight, Mic, MicOff, Play, Settings, Volume2, VolumeX, MessageSquare, Volume } from 'lucide-react';
+import { ArrowRight, Mic, MicOff, Settings, Volume2, VolumeX, MessageSquare, Volume } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,6 +21,7 @@ import {
 } from '@/services/translationService';
 import { useMutation } from '@tanstack/react-query';
 import TranslationInfo from '@/components/TranslationInfo';
+import TranslationFeedback from '@/components/TranslationFeedback';
 import { storeVoiceRecording } from '@/models/VoiceRecording';
 import { motion } from 'framer-motion';
 
@@ -61,6 +63,7 @@ const TextTranslation: React.FC = () => {
   const [outputText, setOutputText] = useState('');
   const [fromLang, setFromLang] = useState<LanguageCode>(user?.role === 'doctor' ? 'en' : 'ff');
   const [toLang, setToLang] = useState<LanguageCode>(user?.role === 'doctor' ? 'ff' : 'fr');
+  const [translationId, setTranslationId] = useState<string>('');
 
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -69,6 +72,7 @@ const TextTranslation: React.FC = () => {
     mutationFn: translateText,
     onSuccess: (data) => {
       setOutputText(data.translatedText);
+      setTranslationId(new Date().toISOString()); // Generate a simple unique ID
       toast({
         title: "Translation complete",
         description: `Translated from ${languageMetadata[data.source].name} to ${languageMetadata[data.target].name}`,
@@ -262,20 +266,31 @@ const TextTranslation: React.FC = () => {
                   <label className="text-sm font-medium">
                     {t('translationResult')}:
                   </label>
-                  {outputText && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handlePlayAudio}
-                      disabled={ttsMutation.isPending}>
-                      {isPlaying ? (
-                        <VolumeX className="h-4 w-4 mr-2" />
-                      ) : (
-                        <Volume2 className="h-4 w-4 mr-2" />
-                      )}
-                      {isPlaying ? t('stopAudio') : t('playAudio')}
-                    </Button>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    {outputText && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={handlePlayAudio}
+                        disabled={ttsMutation.isPending}>
+                        {isPlaying ? (
+                          <VolumeX className="h-4 w-4 mr-2" />
+                        ) : (
+                          <Volume2 className="h-4 w-4 mr-2" />
+                        )}
+                        {isPlaying ? t('stopAudio') : t('playAudio')}
+                      </Button>
+                    )}
+                    {outputText && (
+                      <TranslationFeedback 
+                        originalText={inputText}
+                        translatedText={outputText}
+                        sourceLang={fromLang}
+                        targetLang={toLang}
+                        translationId={translationId}
+                      />
+                    )}
+                  </div>
                 </div>
                 <Textarea
                   value={outputText}
@@ -305,6 +320,7 @@ const VoiceTranslation: React.FC = () => {
   const [toLang, setToLang] = useState<LanguageCode>(user?.role === 'doctor' ? 'ff' : 'fr');
   const [micPermission, setMicPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [translationId, setTranslationId] = useState<string>('');
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -351,22 +367,40 @@ const VoiceTranslation: React.FC = () => {
     mutationFn: processVoiceRecording,
     onSuccess: (data) => {
       setTranscription(data.text);
+      setTranslationId(new Date().toISOString()); // Generate a simple unique ID
       
       // After getting transcription, save the recording
       if (audioBlob.current && user?.id) {
         storeRecordingMutation.mutate(audioBlob.current);
       }
       
-      // For demo purposes, simulate a translation
-      setTimeout(() => {
-        setTranslation(`[Translated from ${fromLang} to ${toLang}] ${data.text}`);
-        setIsProcessing(false);
-      }, 1000);
+      // Now translate the transcription
+      translateMutation.mutate({
+        text: data.text,
+        source: fromLang,
+        target: toLang
+      });
     },
     onError: (error) => {
       toast({
         variant: "destructive",
         title: "Transcription failed",
+        description: error.message,
+      });
+      setIsProcessing(false);
+    }
+  });
+  
+  const translateMutation = useMutation({
+    mutationFn: translateText,
+    onSuccess: (data) => {
+      setTranslation(data.translatedText);
+      setIsProcessing(false);
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Translation failed",
         description: error.message,
       });
       setIsProcessing(false);
@@ -623,12 +657,23 @@ const VoiceTranslation: React.FC = () => {
                 <label className="text-sm font-medium">
                   {t('translationResult')}:
                 </label>
-                {translation && (
-                  <Button variant="outline" size="sm" onClick={playTranslation}>
-                    <Volume2 className="h-4 w-4 mr-2" />
-                    {t('playAudio')}
-                  </Button>
-                )}
+                <div className="flex items-center space-x-2">
+                  {translation && (
+                    <Button variant="outline" size="sm" onClick={playTranslation}>
+                      <Volume2 className="h-4 w-4 mr-2" />
+                      {t('playAudio')}
+                    </Button>
+                  )}
+                  {translation && transcription && (
+                    <TranslationFeedback 
+                      originalText={transcription}
+                      translatedText={translation}
+                      sourceLang={fromLang}
+                      targetLang={toLang}
+                      translationId={translationId}
+                    />
+                  )}
+                </div>
               </div>
               <Textarea
                 value={translation}

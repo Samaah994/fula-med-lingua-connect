@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 // Language codes supported by the translation service
@@ -44,6 +45,17 @@ export interface VoiceRecordingResponse {
   confidence?: number;
 }
 
+export interface FeedbackRequest {
+  translationId?: string;
+  originalText: string;
+  translatedText: string;
+  source: LanguageCode;
+  target: LanguageCode;
+  rating: 'positive' | 'negative';
+  comments?: string;
+  userId?: string;
+}
+
 export const translateText = async (request: TranslationRequest): Promise<TranslationResponse> => {
   try {
     console.log(`Translating from ${request.source} to ${request.target}: "${request.text}"`);
@@ -52,48 +64,56 @@ export const translateText = async (request: TranslationRequest): Promise<Transl
     if (!request.text || !request.text.trim()) {
       throw new Error('Text to translate cannot be empty');
     }
-
-    // Currently only support English-Fulfulde translations
-    if ((request.source === 'en' && request.target === 'ff') || (request.source === 'ff' && request.target === 'en')) {
-      const direction = request.source === 'en' && request.target === 'ff' ? 'en_to_ff' : 'ff_to_en';
-      
-      // Call local NLLB translation model API
-      const response = await fetch('http://localhost:8000/translate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: request.text,
-          direction: direction
-        }),
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Translation API error: ${errorText}`);
-      }
-      
-      const data = await response.json();
-      
-      if (!data || !data.translation) {
-        throw new Error('No translation returned from server');
-      }
-      
-      return {
-        originalText: request.text,
-        translatedText: data.translation,
-        source: request.source,
-        target: request.target,
-        model: 'local-nllb',
-      };
+    
+    let direction: string;
+    
+    // Determine the translation direction
+    if (request.source === 'en' && request.target === 'ff') {
+      direction = 'en_to_ff';
+    } else if (request.source === 'ff' && request.target === 'en') {
+      direction = 'ff_to_en';
+    } else if (request.source === 'en' && request.target === 'fr') {
+      direction = 'en_to_fr';
+    } else if (request.source === 'fr' && request.target === 'en') {
+      direction = 'fr_to_en';
+    } else if (request.source === 'ff' && request.target === 'fr') {
+      direction = 'ff_to_fr';
+    } else if (request.source === 'fr' && request.target === 'ff') {
+      direction = 'fr_to_ff';
     } else {
-      // For other language pairs, we could either:
-      // 1. Call a different API
-      // 2. Use a fallback translation service
-      // 3. Return an error
       throw new Error(`Translation from ${request.source} to ${request.target} is not supported by local models`);
     }
+    
+    // Call local translation model API
+    const response = await fetch('http://localhost:8000/translate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text: request.text,
+        direction: direction
+      }),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Translation API error: ${errorText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data || !data.translation) {
+      throw new Error('No translation returned from server');
+    }
+    
+    return {
+      originalText: request.text,
+      translatedText: data.translation,
+      source: request.source,
+      target: request.target,
+      model: 'local-nllb',
+    };
   } catch (error) {
     console.error('Translation error:', error);
     throw new Error('Failed to translate text: ' + (error instanceof Error ? error.message : 'Unknown error'));
@@ -153,6 +173,7 @@ export const processVoiceRecording = async (request: VoiceRecordingRequest): Pro
     // Create FormData with audio blob
     const formData = new FormData();
     formData.append('file', request.audioBlob, 'audio.webm');
+    formData.append('language', request.language);
     
     // Send to local Whisper STT model API
     const response = await fetch('http://localhost:8001/stt', {
@@ -173,11 +194,35 @@ export const processVoiceRecording = async (request: VoiceRecordingRequest): Pro
 
     return {
       text: data.text,
-      confidence: 0.95 // Placeholder confidence value
+      confidence: data.confidence || 0.95
     };
   } catch (error) {
     console.error('Voice processing error:', error);
     throw new Error('Failed to process voice recording: ' + (error instanceof Error ? error.message : 'Unknown error'));
+  }
+};
+
+// New function to submit translation feedback
+export const submitTranslationFeedback = async (feedback: FeedbackRequest): Promise<void> => {
+  try {
+    console.log(`Submitting translation feedback for ${feedback.source} to ${feedback.target} translation`);
+    
+    // Store feedback in Supabase or local storage
+    await supabase.from('translation_feedback').insert({
+      original_text: feedback.originalText,
+      translated_text: feedback.translatedText,
+      source_language: feedback.source,
+      target_language: feedback.target,
+      rating: feedback.rating,
+      comments: feedback.comments || null,
+      user_id: feedback.userId || null,
+      translation_id: feedback.translationId || null,
+      created_at: new Date()
+    });
+    
+  } catch (error) {
+    console.error('Feedback submission error:', error);
+    throw new Error('Failed to submit feedback: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 };
 
