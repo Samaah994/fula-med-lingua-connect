@@ -21,8 +21,6 @@ const TranslationInfo: React.FC<TranslationInfoProps> = ({ sourceLang, targetLan
   const source = languageMetadata[sourceLang as keyof typeof languageMetadata];
   const target = languageMetadata[targetLang as keyof typeof languageMetadata];
   
-  const isFulfuldeInvolved = sourceLang === 'ff' || targetLang === 'ff';
-  
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
@@ -35,24 +33,12 @@ const TranslationInfo: React.FC<TranslationInfoProps> = ({ sourceLang, targetLan
         <div className="space-y-2">
           <h4 className="text-sm font-semibold">{t('translationInfo')}</h4>
           
-          {isFulfuldeInvolved && (
-            <p className="text-xs text-muted-foreground">
-              Fulfulde translations use data from the <strong>openlanguagedata/oldi_seed</strong> dataset combined with AI for improved accuracy.
-            </p>
-          )}
-          
           <div className="grid grid-cols-2 gap-2">
             <div>
               <p className="text-xs font-medium">{source.name} {source.flag}</p>
-              <p className="text-xs text-muted-foreground">
-                STT: {source.sttSupport === 'high' ? 'Full Support' : 'Limited Support'}
-              </p>
             </div>
             <div>
               <p className="text-xs font-medium">{target.name} {target.flag}</p>
-              <p className="text-xs text-muted-foreground">
-                TTS: {target.ttsSupport === 'high' ? 'Full Support' : 'Limited Support'}
-              </p>
             </div>
           </div>
         </div>
