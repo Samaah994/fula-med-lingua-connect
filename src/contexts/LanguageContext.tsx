@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, ReactNode } from "react";
 
 // Define available languages
@@ -490,7 +491,8 @@ export const translations: TranslationDict = {
     ff: "Tiiɗno naatnu binndol ngam firtude",
     fr: "Veuillez entrer du texte à traduire"
   },
-  medicalTranslation: {
+  // Fixing duplicate key issue - renaming the second occurrence of medicalTranslation
+  medicalTranslationTitle: {
     en: "Medical Translation",
     ff: "Firtugol Cellal",
     fr: "Traduction Médicale"
