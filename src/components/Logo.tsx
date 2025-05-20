@@ -6,7 +6,7 @@ interface LogoProps {
   size?: 'small' | 'medium' | 'large';
 }
 
-// Simplified Logo component
+// Enhanced Logo component
 const Logo: React.FC<LogoProps> = ({ size = 'medium' }) => {
   const { t } = useLanguage();
   
