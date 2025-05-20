@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 import DashboardLayout from '@/components/DashboardLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useUser } from '@/contexts/UserContext';
@@ -27,7 +28,7 @@ const MedicalHistoryPage: React.FC = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('text');
 
-  // Query to fetch medical records
+  // Query to fetch medical records with optimized settings
   const { data: medicalRecords, isLoading, error } = useQuery({
     queryKey: ['medicalRecords', user?.id],
     queryFn: async () => {
@@ -35,7 +36,7 @@ const MedicalHistoryPage: React.FC = () => {
       
       // Check if the user ID is the development mock ID, and handle accordingly
       if (user.id === 'dev-user-123') {
-        // Return mock data for development
+        // Return mock data for development immediately
         return [
           {
             id: 'mock-1',
@@ -64,9 +65,11 @@ const MedicalHistoryPage: React.FC = () => {
       return data as MedicalRecord[];
     },
     enabled: !!user,
+    staleTime: 300000, // 5 minutes
+    cacheTime: 600000, // 10 minutes
   });
 
-  // Filter records by type based on active tab
+  // Filter records by type based on active tab - do this work early
   const textRecords = medicalRecords?.filter(record => record.record_type === 'text') || [];
   const voiceRecords = medicalRecords?.filter(record => record.record_type === 'voice') || [];
 
@@ -108,6 +111,42 @@ const MedicalHistoryPage: React.FC = () => {
     await trackDownload(record.id, record.record_type);
   };
 
+  // Render loading skeleton for better perceived performance
+  if (isLoading) {
+    return (
+      <DashboardLayout title={t('medicalHistory')}>
+        <Tabs defaultValue="text">
+          <TabsList className="mb-6">
+            <TabsTrigger value="text">
+              <FileText className="h-4 w-4 mr-2" />
+              {t('textNotes')}
+            </TabsTrigger>
+            <TabsTrigger value="voice">
+              <File className="h-4 w-4 mr-2" />
+              {t('voiceRecordings')}
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="text">
+            <div className="grid gap-4">
+              {[1, 2, 3].map((i) => (
+                <Card key={i}>
+                  <CardHeader className="pb-2">
+                    <Skeleton className="h-6 w-40" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-20 w-full mb-4" />
+                    <Skeleton className="h-8 w-32" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </DashboardLayout>
+    );
+  }
+
   if (error) {
     return (
       <DashboardLayout title={t('medicalHistory')}>
@@ -133,11 +172,7 @@ const MedicalHistoryPage: React.FC = () => {
         </TabsList>
         
         <TabsContent value="text">
-          {isLoading ? (
-            <div className="flex justify-center items-center h-40">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : textRecords.length > 0 ? (
+          {textRecords.length > 0 ? (
             <div className="grid gap-4">
               {textRecords.map((record) => (
                 <Card key={record.id}>
@@ -171,11 +206,7 @@ const MedicalHistoryPage: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="voice">
-          {isLoading ? (
-            <div className="flex justify-center items-center h-40">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : voiceRecords.length > 0 ? (
+          {voiceRecords.length > 0 ? (
             <div className="grid gap-4">
               {voiceRecords.map((record) => (
                 <Card key={record.id}>

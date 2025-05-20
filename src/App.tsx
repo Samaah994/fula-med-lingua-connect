@@ -23,9 +23,9 @@ const TranslatePage = lazy(() => import("./pages/TranslatePage"));
 const AppointmentsPage = lazy(() => import("./pages/AppointmentsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Ultra-simplified loading fallback for faster rendering
+// Optimized loading fallback for faster rendering
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-accent to-white dark:from-accent/30 dark:to-background">
+  <div className="min-h-screen flex items-center justify-center">
     <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
   </div>
 );
@@ -34,10 +34,11 @@ const App = () => {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 120000,
+        staleTime: 60000, // 1 minute to reduce refetches
         gcTime: 300000,
         retry: 1,
         refetchOnWindowFocus: false,
+        suspense: false, // Don't use React Suspense for data fetching
       },
     },
   }));

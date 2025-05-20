@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
@@ -13,8 +13,11 @@ const WelcomePage = () => {
   const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
 
+  // Optimize the mounting process
   useEffect(() => {
-    setMounted(true);
+    // Use requestAnimationFrame for smoother visual transitions
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   return (
@@ -33,15 +36,15 @@ const WelcomePage = () => {
         {mounted && (
           <motion.div 
             className="max-w-3xl mx-auto space-y-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }} // Faster transition
           >
             <motion.div 
               className="space-y-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
+              transition={{ delay: 0.2, duration: 0.4 }} // Faster transition
             >
               <h1 className="text-4xl sm:text-5xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
                 {t('welcome')}
@@ -52,10 +55,10 @@ const WelcomePage = () => {
             </motion.div>
             
             <motion.div 
-              className="animate-bounce hidden sm:block"
+              className="hidden sm:block"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.6, type: "spring" }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 200 }} // More responsive animation
             >
               <svg
                 className="mx-auto h-12 w-12 text-primary"
@@ -76,7 +79,7 @@ const WelcomePage = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.9, duration: 0.3 }}
+              transition={{ delay: 0.4, duration: 0.3 }} // Faster transition
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
