@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, ReactNode } from "react";
 
 // Define available languages
@@ -530,6 +529,97 @@ export const translations: TranslationDict = {
     en: "Processing your speech...",
     ff: "Ena yuɓɓina konngol maa...",
     fr: "Traitement de votre discours..."
+  },
+  // New translations for Index page
+  breakingLanguageBarriers: {
+    en: "Breaking Language Barriers in Healthcare",
+    ff: "Hettude Saɗɗi Ɗemɗe e Cellal",
+    fr: "Briser les Barrières Linguistiques dans les Soins de Santé"
+  },
+  empoweringMedicalCommunication: {
+    en: "Empowering medical communication between healthcare providers and patients through seamless translation in English, French, and Fulfulde.",
+    ff: "Hokkirde baawɗe e kaaldol cellal hakkunde hokkoowo cellal e nyawɓe laamorgol firtuki yaawnuki e Engeleere, Faraasi, e Fulfulde.",
+    fr: "Faciliter la communication médicale entre les professionnels de santé et les patients grâce à une traduction fluide en anglais, français et fulfulde."
+  },
+  getStarted: {
+    en: "Get Started",
+    ff: "Fuɗɗo Jooni",
+    fr: "Commencer"
+  },
+  goToDashboard: {
+    en: "Go To Dashboard",
+    ff: "Yah to Alluwal Kuutorɗo",
+    fr: "Accéder au Tableau de Bord"
+  },
+  featuredFeatures: {
+    en: "Featured Features",
+    ff: "Fannuuji Cuɓaaɗi",
+    fr: "Fonctionnalités Vedettes"
+  },
+  exploreOurServices: {
+    en: "Explore Our Services",
+    ff: "Yillo Ballal Amen",
+    fr: "Explorez Nos Services"
+  },
+  realTimeTranslation: {
+    en: "Real-Time Translation",
+    ff: "Firtugol e Sahaa Gooto",
+    fr: "Traduction en Temps Réel"
+  },
+  instantTranslation: {
+    en: "Instant translation between languages during consultations",
+    ff: "Firtugol law hakkunde ɗemɗe e sahaa ƴeewde",
+    fr: "Traduction instantanée entre les langues pendant les consultations"
+  },
+  voiceSupport: {
+    en: "Voice Support",
+    ff: "Ballal Daande",
+    fr: "Support Vocal"
+  },
+  ourCoreFeatures: {
+    en: "Our Core Features",
+    ff: "Fannuuji Amen Mawɗi",
+    fr: "Nos Fonctionnalités Principales"
+  },
+  medicalTranslation: {
+    en: "Medical Translation",
+    ff: "Firtugol Cellal",
+    fr: "Traduction Médicale"
+  },
+  medicalTranslationDescription: {
+    en: "Accurate translations of medical terminology and conversations between patients and healthcare providers",
+    ff: "Firtanɗe peewɗe konngol cellal e kaaldal hakkunde nyawɓe e hokkooɓe cellal",
+    fr: "Traductions précises de la terminologie médicale et des conversations entre patients et professionnels de santé"
+  },
+  voiceTextSupport: {
+    en: "Voice & Text Support",
+    ff: "Ballal Daande & Binndol",
+    fr: "Support Vocal & Textuel"
+  },
+  voiceTextSupportDescription: {
+    en: "Support for both voice and text-based communication to accommodate different preferences",
+    ff: "Ballal e daande e binndol ngam yahde e jiɗaaɗi celluɗi",
+    fr: "Support pour la communication vocale et textuelle pour s'adapter aux différentes préférences"
+  },
+  patientDoctorConnection: {
+    en: "Patient-Doctor Connection",
+    ff: "Jokkondiral Nyawɗo-Doktoor",
+    fr: "Connexion Patient-Médecin"
+  },
+  patientDoctorConnectionDescription: {
+    en: "Secure platform for seamless communication between patients and healthcare providers",
+    ff: "Danndorgol hisungol ngam kaaldol yaawnugol hakkunde nyawɓe e hokkooɓe cellal",
+    fr: "Plateforme sécurisée pour une communication fluide entre patients et professionnels de santé"
+  },
+  allRightsReserved: {
+    en: "All Rights Reserved",
+    ff: "Hakkeeji Fof Ko Ndenndaaɗi",
+    fr: "Tous Droits Réservés"
+  },
+  welcomeDescription: {
+    en: "Experience seamless medical communication across language barriers with FulaMed's translation platform.",
+    ff: "Heɓ kaaldol cellal yaawnungol hakkunde saɗɗi ɗemɗe e danndorgol firtugol FulaMed.",
+    fr: "Découvrez une communication médicale fluide à travers les barrières linguistiques grâce à la plateforme de traduction de FulaMed."
   }
 };
 

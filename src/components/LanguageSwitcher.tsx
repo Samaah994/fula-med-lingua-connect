@@ -18,8 +18,11 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
+        <Button variant="ghost" size="icon" className="rounded-full relative">
           <Globe className="h-5 w-5" />
+          <span className="absolute -bottom-1 -right-1 text-xs bg-primary text-primary-foreground w-4 h-4 flex items-center justify-center rounded-full font-bold">
+            {language.toUpperCase()}
+          </span>
           <span className="sr-only">{t('switchLanguage')}</span>
         </Button>
       </DropdownMenuTrigger>

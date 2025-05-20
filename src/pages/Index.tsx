@@ -11,17 +11,20 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { motion } from 'framer-motion';
 
-const FeatureItem = memo(({ title, description, index }: { title: string; description: string; index: number }) => (
-  <motion.div 
-    className="bg-background/70 dark:bg-background/40 p-5 rounded-lg shadow-sm border border-border"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.2 * index, duration: 0.5 }}
-  >
-    <h3 className="text-lg font-medium mb-2">{title}</h3>
-    <p className="text-muted-foreground">{description}</p>
-  </motion.div>
-));
+const FeatureItem = memo(({ title, description, index }: { title: string; description: string; index: number }) => {
+  const { t } = useLanguage();
+  return (
+    <motion.div 
+      className="bg-background/70 dark:bg-background/40 p-5 rounded-lg shadow-sm border border-border"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 * index, duration: 0.5 }}
+    >
+      <h3 className="text-lg font-medium mb-2">{t(title)}</h3>
+      <p className="text-muted-foreground">{t(description)}</p>
+    </motion.div>
+  );
+});
 
 FeatureItem.displayName = 'FeatureItem';
 
@@ -49,15 +52,15 @@ const Index = () => {
             {!user ? (
               <div className="hidden sm:flex sm:items-center sm:space-x-4">
                 <Button variant="ghost" onClick={() => navigate('/login')}>
-                  Login
+                  {t('login')}
                 </Button>
                 <Button onClick={() => navigate('/signup')}>
-                  Sign Up
+                  {t('signup')}
                 </Button>
               </div>
             ) : (
               <Button onClick={() => navigate('/dashboard')}>
-                Dashboard
+                {t('home')}
               </Button>
             )}
             {!user && (
@@ -87,7 +90,7 @@ const Index = () => {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
                 >
-                  Breaking Language Barriers in Healthcare
+                  {t('breakingLanguageBarriers')}
                 </motion.h1>
                 <motion.p 
                   className="max-w-[600px] text-base sm:text-lg text-muted-foreground md:text-xl"
@@ -95,7 +98,7 @@ const Index = () => {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
                 >
-                  Empowering medical communication between healthcare providers and patients through seamless translation in English, French, and Fulfulde.
+                  {t('empoweringMedicalCommunication')}
                 </motion.p>
               </div>
               <motion.div 
@@ -108,16 +111,16 @@ const Index = () => {
                   <>
                     <Button size="lg" className="w-full sm:w-auto" onClick={() => navigate('/signup')}>
                       <UserPlus className="mr-2 h-5 w-5" />
-                      Get Started
+                      {t('getStarted')}
                     </Button>
                     <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={() => navigate('/login')}>
                       <LogIn className="mr-2 h-5 w-5" />
-                      Login
+                      {t('login')}
                     </Button>
                   </>
                 ) : (
                   <Button size="lg" className="w-full sm:w-auto" onClick={() => navigate('/dashboard')}>
-                    Go To Dashboard
+                    {t('goToDashboard')}
                   </Button>
                 )}
               </motion.div>
@@ -134,9 +137,9 @@ const Index = () => {
                 <div className="relative rounded-2xl border bg-card p-6 sm:p-8 shadow">
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <h3 className="text-xl sm:text-2xl font-bold">Featured Features</h3>
+                      <h3 className="text-xl sm:text-2xl font-bold">{t('featuredFeatures')}</h3>
                       <p className="text-muted-foreground">
-                        Explore Our Services
+                        {t('exploreOurServices')}
                       </p>
                     </div>
                     <div className="grid gap-4">
@@ -150,9 +153,9 @@ const Index = () => {
                           <MessageSquare className="h-6 w-6 text-primary" />
                         </div>
                         <div className="space-y-1">
-                          <h4 className="font-medium">Real-Time Translation</h4>
+                          <h4 className="font-medium">{t('realTimeTranslation')}</h4>
                           <p className="text-sm text-muted-foreground">
-                            Instant translation between languages during consultations
+                            {t('instantTranslation')}
                           </p>
                         </div>
                       </motion.div>
@@ -166,9 +169,9 @@ const Index = () => {
                           <Volume2 className="h-6 w-6 text-primary" />
                         </div>
                         <div className="space-y-1">
-                          <h4 className="font-medium">Voice Support</h4>
+                          <h4 className="font-medium">{t('voiceSupport')}</h4>
                           <p className="text-sm text-muted-foreground">
-                            Speak naturally and get instant translations
+                            {t('speakNaturallyGetTranslations')}
                           </p>
                         </div>
                       </motion.div>
@@ -188,22 +191,22 @@ const Index = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            Our Core Features
+            {t('ourCoreFeatures')}
           </motion.h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <FeatureItem 
-              title="Medical Translation"
-              description="Accurate translations of medical terminology and conversations between patients and healthcare providers"
+              title="medicalTranslation"
+              description="medicalTranslationDescription"
               index={1}
             />
             <FeatureItem 
-              title="Voice & Text Support"
-              description="Support for both voice and text-based communication to accommodate different preferences"
+              title="voiceTextSupport"
+              description="voiceTextSupportDescription"
               index={2}
             />
             <FeatureItem 
-              title="Patient-Doctor Connection"
-              description="Secure platform for seamless communication between patients and healthcare providers"
+              title="patientDoctorConnection"
+              description="patientDoctorConnectionDescription"
               index={3}
             />
           </div>
@@ -213,7 +216,7 @@ const Index = () => {
       <footer className="border-t py-6 md:py-0 mt-auto">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row px-4">
           <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-            &copy; 2025 FulaMed. All Rights Reserved
+            &copy; 2025 FulaMed. {t('allRightsReserved')}
           </p>
           <div className="flex items-center space-x-4">
             <ThemeToggle />

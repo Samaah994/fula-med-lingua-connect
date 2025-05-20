@@ -44,7 +44,7 @@ const WelcomePage = () => {
               transition={{ delay: 0.3, duration: 0.6 }}
             >
               <h1 className="text-4xl sm:text-5xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
-                Welcome To FulaMed
+                {t('welcome')}
               </h1>
               <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
                 {t('welcomeDescription')}
@@ -85,7 +85,7 @@ const WelcomePage = () => {
                 className="text-xl py-6 px-8 w-full sm:w-auto" 
                 onClick={() => navigate('/home')}
               >
-                Get Started
+                {t('getStarted')}
               </Button>
             </motion.div>
           </motion.div>
