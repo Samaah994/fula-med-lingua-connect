@@ -95,15 +95,15 @@ const AppointmentsPage: React.FC = () => {
     if (!date || !timeSlot || !doctor || !purpose.trim()) {
       toast({
         variant: "destructive",
-        title: "Missing information",
-        description: "Please fill in all fields to book an appointment.",
+        title: t('missingInformation'),
+        description: t('pleaseAllFields'),
       });
       return;
     }
     
     toast({
-      title: "Appointment Booked",
-      description: `Your appointment has been scheduled for ${format(date, 'PPP')} at ${timeSlot}.`,
+      title: t('appointmentBooked'),
+      description: t('appointmentScheduled').replace('{date}', format(date, 'PPP')).replace('{time}', timeSlot),
     });
     
     // Reset form
@@ -118,9 +118,9 @@ const AppointmentsPage: React.FC = () => {
       <div className="space-y-6">
         <Tabs defaultValue="upcoming" className="w-full">
           <TabsList className="grid grid-cols-3 mb-6">
-            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-            <TabsTrigger value="book">Book New</TabsTrigger>
-            <TabsTrigger value="past">Past</TabsTrigger>
+            <TabsTrigger value="upcoming">{t('upcoming')}</TabsTrigger>
+            <TabsTrigger value="book">{t('bookNew')}</TabsTrigger>
+            <TabsTrigger value="past">{t('past')}</TabsTrigger>
           </TabsList>
           
           {/* Upcoming Appointments Tab */}
@@ -132,7 +132,7 @@ const AppointmentsPage: React.FC = () => {
             ) : (
               <Card>
                 <CardContent className="pt-6 text-center text-muted-foreground">
-                  No upcoming appointments scheduled.
+                  {t('noUpcomingAppointments')}
                 </CardContent>
               </Card>
             )}
@@ -142,12 +142,12 @@ const AppointmentsPage: React.FC = () => {
           <TabsContent value="book">
             <Card>
               <CardHeader>
-                <CardTitle>Book New Appointment</CardTitle>
+                <CardTitle>{t('bookNewAppointment')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Date</label>
+                    <label className="text-sm font-medium">{t('date')}</label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -158,7 +158,7 @@ const AppointmentsPage: React.FC = () => {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? format(date, "PPP") : <span>Select date</span>}
+                          {date ? format(date, "PPP") : <span>{t('selectDate')}</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
@@ -178,10 +178,10 @@ const AppointmentsPage: React.FC = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Time</label>
+                    <label className="text-sm font-medium">{t('time')}</label>
                     <Select value={timeSlot} onValueChange={setTimeSlot}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select time" />
+                        <SelectValue placeholder={t('selectTime')} />
                       </SelectTrigger>
                       <SelectContent>
                         {TIME_SLOTS.map((time) => (
@@ -193,15 +193,15 @@ const AppointmentsPage: React.FC = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Doctor</label>
+                  <label className="text-sm font-medium">{t('doctor')}</label>
                   <Select value={doctor} onValueChange={setDoctor}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select doctor" />
+                      <SelectValue placeholder={t('selectDoctor')} />
                     </SelectTrigger>
                     <SelectContent>
                       {DOCTORS.map((doctor) => (
                         <SelectItem key={doctor.id} value={doctor.id}>
-                          {doctor.name} - {doctor.specialty}
+                          {doctor.name} - {t(doctor.specialty.toLowerCase().replace(' ', ''))}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -209,16 +209,16 @@ const AppointmentsPage: React.FC = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Purpose</label>
+                  <label className="text-sm font-medium">{t('purpose')}</label>
                   <Textarea 
-                    placeholder="Briefly describe the reason for your appointment"
+                    placeholder={t('describeReason')}
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value)}
                   />
                 </div>
                 
                 <Button onClick={handleBookAppointment} className="w-full">
-                  Book Appointment
+                  {t('bookAppointment')}
                 </Button>
               </CardContent>
             </Card>
@@ -233,7 +233,7 @@ const AppointmentsPage: React.FC = () => {
             ) : (
               <Card>
                 <CardContent className="pt-6 text-center text-muted-foreground">
-                  No past appointments found.
+                  {t('noPastAppointments')}
                 </CardContent>
               </Card>
             )}
@@ -257,6 +257,8 @@ interface AppointmentProps {
 }
 
 const AppointmentCard: React.FC<AppointmentProps> = ({ appointment, isPast = false }) => {
+  const { t } = useLanguage();
+  
   return (
     <Card className={cn(
       "transition-all",
@@ -285,10 +287,10 @@ const AppointmentCard: React.FC<AppointmentProps> = ({ appointment, isPast = fal
             {isPast ? (
               <div className="flex items-center text-sm text-green-600">
                 <Check className="h-4 w-4 mr-1" />
-                <span>Completed</span>
+                <span>{t('completed')}</span>
               </div>
             ) : (
-              <Button variant="outline" size="sm">Reschedule</Button>
+              <Button variant="outline" size="sm">{t('reschedule')}</Button>
             )}
           </div>
         </div>

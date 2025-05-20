@@ -27,7 +27,7 @@ const Logo: React.FC<LogoProps> = ({ size = 'medium' }) => {
       <div className={`rounded-full bg-primary flex items-center justify-center text-white font-bold ${sizeClasses[size]}`}>
         <span>F</span>
       </div>
-      <span className={`font-bold text-primary ${textSizes[size]}`}>FulaMed</span>
+      <span className={`font-bold text-primary ${textSizes[size]}`}>{t('appName')}</span>
     </div>
   );
 };

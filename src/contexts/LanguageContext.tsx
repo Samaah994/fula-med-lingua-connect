@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, ReactNode } from "react";
 
 // Define available languages
@@ -622,6 +621,281 @@ export const translations: TranslationDict = {
     en: "Experience seamless medical communication across language barriers with FulaMed's translation platform.",
     ff: "Heɓ kaaldol cellal yaawnungol hakkunde saɗɗi ɗemɗe e danndorgol firtugol FulaMed.",
     fr: "Découvrez une communication médicale fluide à travers les barrières linguistiques grâce à la plateforme de traduction de FulaMed."
+  },
+  // App name
+  appName: {
+    en: "FulaMed",
+    ff: "FulaMed",
+    fr: "FulaMed"
+  },
+  // Dashboard
+  dashboard: {
+    en: "Dashboard",
+    ff: "Alluwal Kuutorɗo",
+    fr: "Tableau de bord"
+  },
+  profileOverview: {
+    en: "Profile Overview",
+    ff: "Ko Humpitii e Konte",
+    fr: "Aperçu du profil"
+  },
+  upcomingAppointments: {
+    en: "Upcoming Appointments",
+    ff: "Udditaaje Garooje",
+    fr: "Rendez-vous à venir"
+  },
+  recentTranslations: {
+    en: "Recent Translations",
+    ff: "Firtanɗe Cakkitiiɗe",
+    fr: "Traductions récentes"
+  },
+  quickActions: {
+    en: "Quick Actions",
+    ff: "Gollaaji Yaawnuɗi",
+    fr: "Actions rapides"
+  },
+  viewProfile: {
+    en: "View Profile",
+    ff: "Yiy Humpito Konte",
+    fr: "Voir le profil"
+  },
+  viewAll: {
+    en: "View All",
+    ff: "Yiy fof",
+    fr: "Voir tout"
+  },
+  noUpcomingAppointments: {
+    en: "No upcoming appointments",
+    ff: "Alaa udditaaje garooje",
+    fr: "Pas de rendez-vous à venir"
+  },
+  noRecentTranslations: {
+    en: "No recent translations",
+    ff: "Alaa firtanɗe cakkitiiɗe",
+    fr: "Pas de traductions récentes"
+  },
+  startTranslation: {
+    en: "Start Translation",
+    ff: "Fuɗɗo Firtude",
+    fr: "Commencer la traduction"
+  },
+  manageAppointments: {
+    en: "Manage Appointments",
+    ff: "Toppito Udditaaje",
+    fr: "Gérer les rendez-vous"
+  },
+  viewPatientRecords: {
+    en: "View Patient Records",
+    ff: "Yiy Binndanɗe Nyawɓe",
+    fr: "Voir les dossiers des patients"
+  },
+  translateWithYourDoctor: {
+    en: "Translate with your doctor",
+    ff: "Firtu e doktoor maa",
+    fr: "Traduisez avec votre médecin"
+  },
+  viewAllAppointments: {
+    en: "View All Appointments",
+    ff: "Yiy Udditaaje Fof",
+    fr: "Voir tous les rendez-vous"
+  },
+  bookAppointment: {
+    en: "Book Appointment",
+    ff: "Uddito",
+    fr: "Prendre rendez-vous"
+  },
+  translations: {
+    en: "Translations",
+    ff: "Firtanɗe",
+    fr: "Traductions"
+  },
+  translatedFrom: {
+    en: "Translated from",
+    ff: "Firtuɗo iwde e",
+    fr: "Traduit de"
+  },
+  fulfulde: {
+    en: "Fulfulde",
+    ff: "Fulfulde",
+    fr: "Peul"
+  },
+  regularCheckup: {
+    en: "Regular check-up",
+    ff: "Ƴeewtogol Kala Wakkati",
+    fr: "Contrôle régulier"
+  },
+  followUpConsultation: {
+    en: "Follow-up consultation",
+    ff: "Jokkolal Ƴeewtagol",
+    fr: "Consultation de suivi"
+  },
+  // Medical History
+  annualCheckupResults: {
+    en: "Annual Checkup Results",
+    ff: "Keɓe Ƴeewtol Hitaande",
+    fr: "Résultats du bilan annuel"
+  },
+  allVitalsNormal: {
+    en: "All vitals normal. Blood pressure 120/80.",
+    ff: "Colli ɓanndu fof e cellal. Ɗatol ƴiiƴam 120/80.",
+    fr: "Tous les signes vitaux sont normaux. Tension artérielle 120/80."
+  },
+  consultationRecording: {
+    en: "Consultation Recording",
+    ff: "Nanngitaade Ƴeewtagol",
+    fr: "Enregistrement de consultation"
+  },
+  unknown: {
+    en: "unknown",
+    ff: "anndaaka",
+    fr: "inconnu"
+  },
+  audioWaveform: {
+    en: "audio waveform",
+    ff: "diiwal ojoo",
+    fr: "forme d'onde audio"
+  },
+  noContent: {
+    en: "No content available",
+    ff: "Alaa ko heɓii",
+    fr: "Pas de contenu disponible"
+  },
+  downloadStarted: {
+    en: "Download started",
+    ff: "Aawtagol fuɗɗii",
+    fr: "Téléchargement commencé"
+  },
+  isBeingDownloaded: {
+    en: "is being downloaded",
+    ff: "ina aawte",
+    fr: "est en cours de téléchargement"
+  },
+  errorLoadingRecords: {
+    en: "Error loading medical records",
+    ff: "Juumre e loowgol winndannde cellal",
+    fr: "Erreur lors du chargement des dossiers médicaux"
+  },
+  noTextRecords: {
+    en: "No text records found",
+    ff: "Alaa binndanɗe keɓaaɗe",
+    fr: "Aucun dossier textuel trouvé"
+  },
+  noVoiceRecords: {
+    en: "No voice records found",
+    ff: "Alaa nanngitanɗe keɓaaɗe",
+    fr: "Aucun enregistrement vocal trouvé"
+  },
+  // Appointments
+  appointments: {
+    en: "Appointments",
+    ff: "Udditaaje",
+    fr: "Rendez-vous"
+  },
+  upcoming: {
+    en: "Upcoming",
+    ff: "Garooje",
+    fr: "À venir"
+  },
+  bookNew: {
+    en: "Book New",
+    ff: "Uddito Heso",
+    fr: "Nouveau rendez-vous"
+  },
+  past: {
+    en: "Past",
+    ff: "Jawtuɗe",
+    fr: "Passés"
+  },
+  bookNewAppointment: {
+    en: "Book New Appointment",
+    ff: "Uddito Udditaare Hesere",
+    fr: "Prendre un nouveau rendez-vous"
+  },
+  date: {
+    en: "Date",
+    ff: "Ñalnde",
+    fr: "Date"
+  },
+  time: {
+    en: "Time",
+    ff: "Wakkati",
+    fr: "Heure"
+  },
+  selectDate: {
+    en: "Select date",
+    ff: "Suɓo ñalnde",
+    fr: "Sélectionner une date"
+  },
+  selectTime: {
+    en: "Select time",
+    ff: "Suɓo wakkati",
+    fr: "Sélectionner une heure"
+  },
+  selectDoctor: {
+    en: "Select doctor",
+    ff: "Suɓo doktoor",
+    fr: "Sélectionner un médecin"
+  },
+  purpose: {
+    en: "Purpose",
+    ff: "Faandaare",
+    fr: "Motif"
+  },
+  describeReason: {
+    en: "Briefly describe the reason for your appointment",
+    ff: "Fammina e raɓɓiɗɗum daliili udditaare maa",
+    fr: "Décrivez brièvement la raison de votre rendez-vous"
+  },
+  completed: {
+    en: "Completed",
+    ff: "Timmii",
+    fr: "Terminé"
+  },
+  reschedule: {
+    en: "Reschedule",
+    ff: "Waylit Wakkati",
+    fr: "Reprogrammer"
+  },
+  noPastAppointments: {
+    en: "No past appointments found",
+    ff: "Alaa udditaaje jawtuɗe keɓaa",
+    fr: "Aucun rendez-vous passé trouvé"
+  },
+  missingInformation: {
+    en: "Missing information",
+    ff: "Humpito nyaki",
+    fr: "Information manquante"
+  },
+  pleaseAllFields: {
+    en: "Please fill in all fields to book an appointment",
+    ff: "Tiiɗno hebbinboɗe fof ngam udditaare",
+    fr: "Veuillez remplir tous les champs pour prendre rendez-vous"
+  },
+  appointmentBooked: {
+    en: "Appointment Booked",
+    ff: "Udditaare Nanngiima",
+    fr: "Rendez-vous pris"
+  },
+  appointmentScheduled: {
+    en: "Your appointment has been scheduled for {date} at {time}",
+    ff: "Udditaare maa nanngiima ngam {date} e {time}",
+    fr: "Votre rendez-vous a été programmé pour le {date} à {time}"
+  },
+  // Doctor specialties
+  cardiologist: {
+    en: "Cardiologist",
+    ff: "Ñawndoowo Ɓernde",
+    fr: "Cardiologue"
+  },
+  dermatologist: {
+    en: "Dermatologist",
+    ff: "Ñawndoowo Nguru",
+    fr: "Dermatologue"
+  },
+  notSpecified: {
+    en: "Not specified",
+    ff: "Hollaaka",
+    fr: "Non spécifié"
   }
 };
 

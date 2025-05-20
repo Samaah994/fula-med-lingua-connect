@@ -15,7 +15,7 @@ const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   
   return (
-    <DashboardLayout title="Dashboard">
+    <DashboardLayout title={t('dashboard')}>
       {user?.role === 'doctor' ? (
         <DoctorDashboard user={user} />
       ) : (
@@ -35,13 +35,13 @@ const DoctorDashboard = ({ user }: { user: any }) => {
   const navigate = useNavigate();
   
   const upcomingAppointments = [
-    { id: '1', patient: 'John Doe', time: '10:30 AM', date: 'Apr 25, 2025', reason: 'Regular check-up' },
-    { id: '2', patient: 'Jane Smith', time: '2:00 PM', date: 'Apr 28, 2025', reason: 'Follow-up consultation' },
+    { id: '1', patient: 'John Doe', time: '10:30 AM', date: 'Apr 25, 2025', reason: t('regularCheckup') },
+    { id: '2', patient: 'Jane Smith', time: '2:00 PM', date: 'Apr 28, 2025', reason: t('followUpConsultation') },
   ];
   
   const recentTranslations = [
-    { id: '1', patient: 'Maria Garcia', date: 'Apr 20, 2025', language: 'Fulfulde' },
-    { id: '2', patient: 'Ali Hassan', date: 'Apr 18, 2025', language: 'Fulfulde' },
+    { id: '1', patient: 'Maria Garcia', date: 'Apr 20, 2025', language: t('fulfulde') },
+    { id: '2', patient: 'Ali Hassan', date: 'Apr 18, 2025', language: t('fulfulde') },
   ];
 
   const userInitials = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
@@ -52,7 +52,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold">Profile Overview</CardTitle>
+              <CardTitle className="text-lg font-semibold">{t('profileOverview')}</CardTitle>
               <Avatar className="h-10 w-10">
                 <AvatarImage src={user?.avatarUrl} alt={user?.name} />
                 <AvatarFallback className="bg-primary/10 text-primary">{userInitials}</AvatarFallback>
@@ -62,15 +62,15 @@ const DoctorDashboard = ({ user }: { user: any }) => {
           <CardContent>
             <div className="space-y-2">
               <div className="grid grid-cols-2">
-                <span className="text-muted-foreground">Name</span>
+                <span className="text-muted-foreground">{t('name')}</span>
                 <span className="font-medium text-right">{user?.name}</span>
               </div>
               <div className="grid grid-cols-2">
-                <span className="text-muted-foreground">Specialty</span>
+                <span className="text-muted-foreground">{t('specialty')}</span>
                 <span className="font-medium text-right">{t(user?.specialty || 'notSpecified')}</span>
               </div>
               <div className="grid grid-cols-2">
-                <span className="text-muted-foreground">Last Login</span>
+                <span className="text-muted-foreground">{t('lastLogin')}</span>
                 <span className="font-medium text-right">{formatDate(user?.lastLogin)}</span>
               </div>
               <Button 
@@ -80,7 +80,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
                 onClick={() => navigate('/profile')}
               >
                 <User className="h-4 w-4 mr-2" />
-                View Profile
+                {t('viewProfile')}
               </Button>
             </div>
           </CardContent>
@@ -88,7 +88,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-semibold">Upcoming Appointments</CardTitle>
+            <CardTitle className="text-lg font-semibold">{t('upcomingAppointments')}</CardTitle>
           </CardHeader>
           <CardContent>
             {upcomingAppointments.length > 0 ? (
@@ -110,12 +110,12 @@ const DoctorDashboard = ({ user }: { user: any }) => {
                   onClick={() => navigate('/appointments')}
                 >
                   <Calendar className="h-4 w-4 mr-2" />
-                  View All
+                  {t('viewAll')}
                 </Button>
               </div>
             ) : (
               <div className="text-center text-muted-foreground py-4">
-                No upcoming appointments
+                {t('noUpcomingAppointments')}
               </div>
             )}
           </CardContent>
@@ -123,7 +123,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-semibold">Recent Translations</CardTitle>
+            <CardTitle className="text-lg font-semibold">{t('recentTranslations')}</CardTitle>
           </CardHeader>
           <CardContent>
             {recentTranslations.length > 0 ? (
@@ -136,7 +136,7 @@ const DoctorDashboard = ({ user }: { user: any }) => {
                       {session.date}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Translated from: {session.language}
+                      {t('translatedFrom')}: {session.language}
                     </div>
                   </div>
                 ))}
@@ -147,12 +147,12 @@ const DoctorDashboard = ({ user }: { user: any }) => {
                   onClick={() => navigate('/translate')}
                 >
                   <MessageSquare className="h-4 w-4 mr-2" />
-                  Translate
+                  {t('translate')}
                 </Button>
               </div>
             ) : (
               <div className="text-center text-muted-foreground py-4">
-                No recent translations
+                {t('noRecentTranslations')}
               </div>
             )}
           </CardContent>
@@ -161,21 +161,21 @@ const DoctorDashboard = ({ user }: { user: any }) => {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-semibold">Quick Actions</CardTitle>
+          <CardTitle className="font-semibold">{t('quickActions')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <Button onClick={() => navigate('/translate')} className="h-20 text-lg justify-start px-4">
               <MessageSquare className="h-6 w-6 mr-4" />
-              Start Translation
+              {t('startTranslation')}
             </Button>
             <Button onClick={() => navigate('/appointments')} variant="outline" className="h-20 text-lg justify-start px-4">
               <Calendar className="h-6 w-6 mr-4" />
-              Manage Appointments
+              {t('manageAppointments')}
             </Button>
             <Button onClick={() => navigate('/medical-history')} variant="outline" className="h-20 text-lg justify-start px-4">
               <ClipboardList className="h-6 w-6 mr-4" />
-              View Patient Records
+              {t('viewPatientRecords')}
             </Button>
           </div>
         </CardContent>
@@ -190,7 +190,7 @@ const PatientDashboard = ({ user }: { user: any }) => {
   
   const upcomingAppointment = {
     doctor: 'Dr. Sarah Johnson',
-    specialty: 'General Practitioner',
+    specialty: t('generalPractitioner'),
     date: 'April 25, 2025',
     time: '10:30 AM',
   };
@@ -203,7 +203,7 @@ const PatientDashboard = ({ user }: { user: any }) => {
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Profile</CardTitle>
+              <CardTitle className="text-lg">{t('profile')}</CardTitle>
               <Avatar className="h-10 w-10">
                 <AvatarImage src={user?.avatarUrl} alt={user?.name} />
                 <AvatarFallback className="bg-primary/10 text-primary">{userInitials}</AvatarFallback>
@@ -213,15 +213,15 @@ const PatientDashboard = ({ user }: { user: any }) => {
           <CardContent>
             <div className="space-y-2">
               <div className="grid grid-cols-2">
-                <span className="text-muted-foreground">Name</span>
+                <span className="text-muted-foreground">{t('name')}</span>
                 <span className="font-medium text-right">{user?.name}</span>
               </div>
               <div className="grid grid-cols-2">
-                <span className="text-muted-foreground">Age</span>
+                <span className="text-muted-foreground">{t('age')}</span>
                 <span className="font-medium text-right">{user?.age}</span>
               </div>
               <div className="grid grid-cols-2">
-                <span className="text-muted-foreground">Last Login</span>
+                <span className="text-muted-foreground">{t('lastLogin')}</span>
                 <span className="font-medium text-right">{formatDate(user?.lastLogin)}</span>
               </div>
               <Button 
@@ -231,7 +231,7 @@ const PatientDashboard = ({ user }: { user: any }) => {
                 onClick={() => navigate('/profile')}
               >
                 <User className="h-4 w-4 mr-2" />
-                View Profile
+                {t('viewProfile')}
               </Button>
             </div>
           </CardContent>
@@ -239,7 +239,7 @@ const PatientDashboard = ({ user }: { user: any }) => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Upcoming Appointments</CardTitle>
+            <CardTitle className="text-lg">{t('upcomingAppointments')}</CardTitle>
           </CardHeader>
           <CardContent>
             {upcomingAppointment ? (
@@ -257,14 +257,14 @@ const PatientDashboard = ({ user }: { user: any }) => {
                   onClick={() => navigate('/appointments')}
                 >
                   <Calendar className="h-4 w-4 mr-2" />
-                  View All Appointments
+                  {t('viewAllAppointments')}
                 </Button>
               </div>
             ) : (
               <div className="py-4 text-center text-muted-foreground">
-                <p className="mb-4">No upcoming appointments</p>
+                <p className="mb-4">{t('noUpcomingAppointments')}</p>
                 <Button onClick={() => navigate('/appointments')}>
-                  Book Appointment
+                  {t('bookAppointment')}
                 </Button>
               </div>
             )}
@@ -273,18 +273,18 @@ const PatientDashboard = ({ user }: { user: any }) => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Translations</CardTitle>
+            <CardTitle className="text-lg">{t('translations')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-center text-muted-foreground py-2 mb-4">
-              Translate with your doctor
+              {t('translateWithYourDoctor')}
             </p>
             <Button 
               onClick={() => navigate('/translate')} 
               className="w-full"
             >
               <MessageSquare className="h-4 w-4 mr-2" />
-              Start Translation
+              {t('startTranslation')}
             </Button>
           </CardContent>
         </Card>
@@ -292,21 +292,21 @@ const PatientDashboard = ({ user }: { user: any }) => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle>{t('quickActions')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <Button onClick={() => navigate('/translate')} className="h-20 text-lg justify-start px-4">
               <MessageSquare className="h-6 w-6 mr-4" />
-              Translate
+              {t('translate')}
             </Button>
             <Button onClick={() => navigate('/appointments')} variant="outline" className="h-20 text-lg justify-start px-4">
               <Calendar className="h-6 w-6 mr-4" />
-              Book Appointment
+              {t('bookAppointment')}
             </Button>
             <Button onClick={() => navigate('/medical-history')} variant="outline" className="h-20 text-lg justify-start px-4">
               <ClipboardList className="h-6 w-6 mr-4" />
-              Medical History
+              {t('medicalHistory')}
             </Button>
           </div>
         </CardContent>

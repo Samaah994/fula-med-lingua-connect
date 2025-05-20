@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FileText, File, Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,14 +39,14 @@ const MedicalHistoryPage: React.FC = () => {
         return [
           {
             id: 'mock-1',
-            title: 'Annual Checkup Results',
-            content: 'All vitals normal. Blood pressure 120/80.',
+            title: t('annualCheckupResults'),
+            content: t('allVitalsNormal'),
             record_type: 'text',
             created_at: new Date().toISOString()
           },
           {
             id: 'mock-2',
-            title: 'Consultation Recording',
+            title: t('consultationRecording'),
             record_type: 'voice',
             duration: '3:45',
             created_at: new Date(Date.now() - 86400000).toISOString()
@@ -119,16 +119,16 @@ const MedicalHistoryPage: React.FC = () => {
   }
 
   return (
-    <DashboardLayout title={t('Medical History')}>
+    <DashboardLayout title={t('medicalHistory')}>
       <Tabs defaultValue="text" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
           <TabsTrigger value="text">
             <FileText className="h-4 w-4 mr-2" />
-            {t('Text Notes')}
+            {t('textNotes')}
           </TabsTrigger>
           <TabsTrigger value="voice">
             <File className="h-4 w-4 mr-2" />
-            {t('Voice Recordings')}
+            {t('voiceRecordings')}
           </TabsTrigger>
         </TabsList>
         
@@ -157,7 +157,7 @@ const MedicalHistoryPage: React.FC = () => {
                       onClick={() => downloadRecord(record)}
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      {t('Download as PDF')}
+                      {t('downloadAsPdf')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -198,7 +198,7 @@ const MedicalHistoryPage: React.FC = () => {
                         onClick={() => downloadRecord(record)}
                       >
                         <Download className="h-4 w-4 mr-2" />
-                        {t('Download')}
+                        {t('download')}
                       </Button>
                     </div>
                     <div className="h-12 bg-secondary/20 rounded-md flex items-center justify-center">
