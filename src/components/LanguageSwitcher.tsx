@@ -4,14 +4,15 @@ import { Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
+import { languageMetadata } from '@/services/translationService';
 
 const LanguageSwitcher: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
 
   const languages = [
-    { code: 'en' as Language, name: 'English' },
-    { code: 'ff' as Language, name: 'Fulfulde' },
-    { code: 'fr' as Language, name: 'Français' }
+    { code: 'en' as Language, name: `${languageMetadata.en.flag} English` },
+    { code: 'ff' as Language, name: `${languageMetadata.ff.flag} Fulfulde` },
+    { code: 'fr' as Language, name: `${languageMetadata.fr.flag} Français` }
   ];
 
   return (

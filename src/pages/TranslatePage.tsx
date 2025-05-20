@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowRight, Mic, MicOff, Settings, Volume2, VolumeX, MessageSquare, Volume } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -74,14 +73,14 @@ const TextTranslation: React.FC = () => {
       setOutputText(data.translatedText);
       setTranslationId(new Date().toISOString()); // Generate a simple unique ID
       toast({
-        title: "Translation complete",
-        description: `Translated from ${languageMetadata[data.source].name} to ${languageMetadata[data.target].name}`,
+        title: t('translateComplete'),
+        description: t('translatedFromTo').replace('{from}', languageMetadata[data.source].name).replace('{to}', languageMetadata[data.target].name),
       });
     },
     onError: (error) => {
       toast({
         variant: "destructive",
-        title: "Translation failed",
+        title: t('translationFailed'),
         description: error.message,
       });
     }
@@ -99,7 +98,7 @@ const TextTranslation: React.FC = () => {
     onError: (error) => {
       toast({
         variant: "destructive",
-        title: "Text-to-speech failed",
+        title: t('textToSpeechFailed'),
         description: error.message,
       });
     }
@@ -109,8 +108,8 @@ const TextTranslation: React.FC = () => {
     if (!inputText.trim()) {
       toast({
         variant: "destructive",
-        title: "Empty input",
-        description: "Please enter text to translate",
+        title: t('emptyInput'),
+        description: t('pleaseEnterTextToTranslate'),
       });
       return;
     }
@@ -167,11 +166,10 @@ const TextTranslation: React.FC = () => {
         <CardContent className="pt-6">
           <div className="mb-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold">Medical Translation</h2>
-              <TranslationInfo sourceLang={fromLang} targetLang={toLang} />
+              <h2 className="text-2xl font-semibold">{t('medicalTranslation')}</h2>
             </div>
             <p className="text-muted-foreground">
-              Translate medical conversations between English, French, and Fulfulde with high accuracy.
+              {t('translateMedicalConversations')}
             </p>
           </div>
           
@@ -520,9 +518,9 @@ const VoiceTranslation: React.FC = () => {
       <Card>
         <CardContent className="pt-6">
           <div className="mb-6">
-            <h2 className="text-2xl font-semibold mb-2">Voice Translation</h2>
+            <h2 className="text-2xl font-semibold mb-2">{t('voiceTranslation')}</h2>
             <p className="text-muted-foreground">
-              Speak naturally and get instant translations in your preferred language.
+              {t('speakNaturallyGetTranslations')}
             </p>
           </div>
           
@@ -630,7 +628,7 @@ const VoiceTranslation: React.FC = () => {
                     transition={{ repeat: Infinity, duration: 1, delay: 0.6 }}
                   />
                 </div>
-                <p className="text-sm text-primary">Processing your speech...</p>
+                <p className="text-sm text-primary">{t('processingYourSpeech')}</p>
               </div>
             ) : micPermission === 'denied' ? (
               <p className="text-sm text-destructive">{t('microphoneAccessDenied')}</p>

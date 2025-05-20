@@ -459,6 +459,77 @@ export const translations: TranslationDict = {
     en: "Additional comments (optional)",
     ff: "Jaabtol kesol (so a yiɗi)",
     fr: "Commentaires supplémentaires (facultatif)"
+  },
+  // New translations to support hardcoded strings in TranslatePage
+  translateComplete: {
+    en: "Translation complete",
+    ff: "Firtugol timmi",
+    fr: "Traduction terminée"
+  },
+  translatedFromTo: {
+    en: "Translated from {from} to {to}",
+    ff: "Firtuɗo iwde e {from} faade e {to}",
+    fr: "Traduit de {from} vers {to}"
+  },
+  translationFailed: {
+    en: "Translation failed",
+    ff: "Firtugol waɗaani",
+    fr: "Échec de traduction"
+  },
+  textToSpeechFailed: {
+    en: "Text-to-speech failed",
+    ff: "Jiiɓtugol binndol to haala waɗaani",
+    fr: "Échec de la synthèse vocale"
+  },
+  emptyInput: {
+    en: "Empty input",
+    ff: "Naatnirgol meere",
+    fr: "Entrée vide"
+  },
+  pleaseEnterTextToTranslate: {
+    en: "Please enter text to translate",
+    ff: "Tiiɗno naatnu binndol ngam firtude",
+    fr: "Veuillez entrer du texte à traduire"
+  },
+  medicalTranslation: {
+    en: "Medical Translation",
+    ff: "Firtugol Cellal",
+    fr: "Traduction Médicale"
+  },
+  translateMedicalConversations: {
+    en: "Translate medical conversations between English, French, and Fulfulde with high accuracy.",
+    ff: "Firtu kaaldal cellal hakkunde Engeleere, Faraas, e Fulfulde e peewgol toowngol.",
+    fr: "Traduisez les conversations médicales entre l'anglais, le français et le fulfulde avec une grande précision."
+  },
+  speakNaturallyGetTranslations: {
+    en: "Speak naturally and get instant translations in your preferred language.",
+    ff: "Haal e al'aada maa keɓ firtanɗe ɗe peelortoɗaa law.",
+    fr: "Parlez naturellement et obtenez des traductions instantanées dans votre langue préférée."
+  },
+  processingYourSpeech: {
+    en: "Processing your speech...",
+    ff: "Ena yuɓɓina konngol maa...",
+    fr: "Traitement de votre discours..."
+  },
+  recordingStarted: {
+    en: "Recording started",
+    ff: "Nanngitaade fuɗɗaama",
+    fr: "Enregistrement démarré"
+  },
+  recordingStopped: {
+    en: "Recording stopped",
+    ff: "Nanngitaade dartinaa",
+    fr: "Enregistrement arrêté"
+  },
+  speakNowRecording: {
+    en: "Speak now. Recording will automatically stop after 15 seconds if not stopped manually.",
+    ff: "Haal jooni. Nanngitaade maa daroyoo hoore mum caggal kilaaji 15 so tawi dartaaka e juuɗe.",
+    fr: "Parlez maintenant. L'enregistrement s'arrêtera automatiquement après 15 secondes s'il n'est pas arrêté manuellement."
+  },
+  processingYourSpeechEllipsis: {
+    en: "Processing your speech...",
+    ff: "Ena yuɓɓina konngol maa...",
+    fr: "Traitement de votre discours..."
   }
 };
 
