@@ -38,7 +38,7 @@ const App = () => {
         gcTime: 300000,
         retry: 1,
         refetchOnWindowFocus: false,
-        suspense: false, // Don't use React Suspense for data fetching
+        // Remove the 'suspense' property as it doesn't exist in this version
       },
     },
   }));

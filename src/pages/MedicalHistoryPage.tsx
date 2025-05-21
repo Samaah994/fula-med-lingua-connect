@@ -66,7 +66,7 @@ const MedicalHistoryPage: React.FC = () => {
     },
     enabled: !!user,
     staleTime: 300000, // 5 minutes
-    cacheTime: 600000, // 10 minutes
+    gcTime: 600000, // 10 minutes (replacing cacheTime with gcTime)
   });
 
   // Filter records by type based on active tab - do this work early
