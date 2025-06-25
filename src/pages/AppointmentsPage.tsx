@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Calendar, Clock, Check, Calendar as CalendarIcon } from 'lucide-react';
@@ -28,45 +28,9 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 import DashboardLayout from '@/components/DashboardLayout';
-
-// Mock data
-const MOCK_UPCOMING_APPOINTMENTS = [
-  {
-    id: '1',
-    date: new Date(2025, 4, 25, 10, 30),
-    doctor: 'Dr. Sarah Johnson',
-    purpose: 'Regular check-up',
-    location: 'Main Hospital, Room 205',
-  },
-  {
-    id: '2',
-    date: new Date(2025, 4, 28, 14, 0),
-    doctor: 'Dr. Michael Chen',
-    purpose: 'Follow-up consultation',
-    location: 'Medical Center, Floor 3',
-  },
-];
-
-const MOCK_PAST_APPOINTMENTS = [
-  {
-    id: '3',
-    date: new Date(2025, 3, 15, 9, 0),
-    doctor: 'Dr. Sarah Johnson',
-    purpose: 'Annual physical',
-    location: 'Main Hospital, Room 205',
-    completed: true,
-  },
-  {
-    id: '4',
-    date: new Date(2025, 2, 10, 11, 30),
-    doctor: 'Dr. Robert Wilson',
-    purpose: 'Vaccination',
-    location: 'Community Clinic',
-    completed: true,
-  },
-];
 
 const DOCTORS = [
   { id: '1', name: 'Dr. Sarah Johnson', specialty: 'General Practitioner' },
@@ -81,6 +45,18 @@ const TIME_SLOTS = [
   '4:00 PM', '4:30 PM'
 ];
 
+interface Appointment {
+  id: string;
+  user_id: string;
+  doctor_id: string;
+  appointment_date: string;
+  time_slot: string;
+  purpose: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const AppointmentsPage: React.FC = () => {
   const { t } = useLanguage();
   const { user } = useUser();
@@ -90,8 +66,47 @@ const AppointmentsPage: React.FC = () => {
   const [timeSlot, setTimeSlot] = useState<string>('');
   const [doctor, setDoctor] = useState<string>('');
   const [purpose, setPurpose] = useState<string>('');
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch appointments on component mount
+  useEffect(() => {
+    if (user) {
+      fetchAppointments();
+    }
+  }, [user]);
+
+  const fetchAppointments = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('appointment_date', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching appointments:', error);
+        toast({
+          variant: "destructive",
+          title: t('errorFetchingAppointments'),
+          description: error.message,
+        });
+      } else {
+        setAppointments(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      toast({
+        variant: "destructive",
+        title: t('errorFetchingAppointments'),
+        description: t('unexpectedError'),
+      });
+    }
+  };
   
-  const handleBookAppointment = () => {
+  const handleBookAppointment = async () => {
     if (!date || !timeSlot || !doctor || !purpose.trim()) {
       toast({
         variant: "destructive",
@@ -100,18 +115,86 @@ const AppointmentsPage: React.FC = () => {
       });
       return;
     }
+
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: t('authenticationRequired'),
+        description: t('pleaseLogin'),
+      });
+      return;
+    }
+
+    setLoading(true);
     
-    toast({
-      title: t('appointmentBooked'),
-      description: t('appointmentScheduled').replace('{date}', format(date, 'PPP')).replace('{time}', timeSlot),
-    });
-    
-    // Reset form
-    setDate(undefined);
-    setTimeSlot('');
-    setDoctor('');
-    setPurpose('');
+    try {
+      // Combine date and time for the appointment
+      const appointmentDateTime = new Date(date);
+      appointmentDateTime.setHours(
+        parseInt(timeSlot.split(':')[0]) + (timeSlot.includes('PM') && !timeSlot.includes('12') ? 12 : 0),
+        parseInt(timeSlot.split(':')[1].split(' ')[0]),
+        0,
+        0
+      );
+
+      const { data, error } = await supabase
+        .from('appointments')
+        .insert([
+          {
+            user_id: user.id,
+            doctor_id: doctor,
+            appointment_date: appointmentDateTime.toISOString(),
+            time_slot: timeSlot,
+            purpose: purpose.trim(),
+            status: 'scheduled'
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error booking appointment:', error);
+        toast({
+          variant: "destructive",
+          title: t('bookingFailed'),
+          description: error.message,
+        });
+        return;
+      }
+
+      toast({
+        title: t('appointmentBooked'),
+        description: t('appointmentScheduled').replace('{date}', format(date, 'PPP')).replace('{time}', timeSlot),
+      });
+      
+      // Reset form
+      setDate(undefined);
+      setTimeSlot('');
+      setDoctor('');
+      setPurpose('');
+      
+      // Refresh appointments list
+      fetchAppointments();
+      
+    } catch (error) {
+      console.error('Error booking appointment:', error);
+      toast({
+        variant: "destructive",
+        title: t('bookingFailed'),
+        description: t('unexpectedError'),
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const upcomingAppointments = appointments.filter(apt => 
+    new Date(apt.appointment_date) > new Date() && apt.status === 'scheduled'
+  );
+
+  const pastAppointments = appointments.filter(apt => 
+    new Date(apt.appointment_date) <= new Date() || apt.status === 'completed'
+  );
 
   return (
     <DashboardLayout title={t('appointments')}>
@@ -125,8 +208,8 @@ const AppointmentsPage: React.FC = () => {
           
           {/* Upcoming Appointments Tab */}
           <TabsContent value="upcoming" className="space-y-4">
-            {MOCK_UPCOMING_APPOINTMENTS.length > 0 ? (
-              MOCK_UPCOMING_APPOINTMENTS.map((appointment) => (
+            {upcomingAppointments.length > 0 ? (
+              upcomingAppointments.map((appointment) => (
                 <AppointmentCard key={appointment.id} appointment={appointment} />
               ))
             ) : (
@@ -217,8 +300,12 @@ const AppointmentsPage: React.FC = () => {
                   />
                 </div>
                 
-                <Button onClick={handleBookAppointment} className="w-full">
-                  {t('bookAppointment')}
+                <Button 
+                  onClick={handleBookAppointment} 
+                  className="w-full"
+                  disabled={loading}
+                >
+                  {loading ? t('booking') : t('bookAppointment')}
                 </Button>
               </CardContent>
             </Card>
@@ -226,8 +313,8 @@ const AppointmentsPage: React.FC = () => {
           
           {/* Past Appointments Tab */}
           <TabsContent value="past" className="space-y-4">
-            {MOCK_PAST_APPOINTMENTS.length > 0 ? (
-              MOCK_PAST_APPOINTMENTS.map((appointment) => (
+            {pastAppointments.length > 0 ? (
+              pastAppointments.map((appointment) => (
                 <AppointmentCard key={appointment.id} appointment={appointment} isPast />
               ))
             ) : (
@@ -245,19 +332,15 @@ const AppointmentsPage: React.FC = () => {
 };
 
 interface AppointmentProps {
-  appointment: {
-    id: string;
-    date: Date;
-    doctor: string;
-    purpose: string;
-    location: string;
-    completed?: boolean;
-  };
+  appointment: Appointment;
   isPast?: boolean;
 }
 
 const AppointmentCard: React.FC<AppointmentProps> = ({ appointment, isPast = false }) => {
   const { t } = useLanguage();
+  
+  const doctor = DOCTORS.find(d => d.id === appointment.doctor_id);
+  const appointmentDate = new Date(appointment.appointment_date);
   
   return (
     <Card className={cn(
@@ -271,15 +354,17 @@ const AppointmentCard: React.FC<AppointmentProps> = ({ appointment, isPast = fal
               <Calendar className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h3 className="font-medium">{appointment.doctor}</h3>
+              <h3 className="font-medium">{doctor?.name || t('unknownDoctor')}</h3>
               <p className="text-sm text-muted-foreground">{appointment.purpose}</p>
               <div className="flex items-center gap-2 mt-1 text-sm">
                 <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>{format(appointment.date, 'PPP')}</span>
+                <span>{format(appointmentDate, 'PPP')}</span>
                 <Clock className="h-3.5 w-3.5 ml-2 text-muted-foreground" />
-                <span>{format(appointment.date, 'p')}</span>
+                <span>{appointment.time_slot}</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">{appointment.location}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t('status')}: {t(appointment.status)}
+              </p>
             </div>
           </div>
           
