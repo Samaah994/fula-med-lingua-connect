@@ -82,7 +82,7 @@ const AppointmentsPage: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('appointments')
-        .select('*')
+        .select('id, user_id, doctor_id, appointment_date, time_slot, purpose, status, created_at, updated_at')
         .eq('user_id', user.id)
         .order('appointment_date', { ascending: true });
 
@@ -149,7 +149,7 @@ const AppointmentsPage: React.FC = () => {
             status: 'scheduled'
           }
         ])
-        .select()
+        .select('id, user_id, doctor_id, appointment_date, time_slot, purpose, status, created_at, updated_at')
         .single();
 
       if (error) {
