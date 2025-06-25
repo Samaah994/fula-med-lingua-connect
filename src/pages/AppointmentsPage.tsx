@@ -48,11 +48,8 @@ const TIME_SLOTS = [
 interface Appointment {
   id: string;
   user_id: string;
-  doctor_id: string;
   appointment_date: string;
-  time_slot: string;
-  purpose: string;
-  status: string;
+  description: string;
   created_at: string;
   updated_at: string;
 }
@@ -82,7 +79,7 @@ const AppointmentsPage: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('appointments')
-        .select('id, user_id, doctor_id, appointment_date, time_slot, purpose, status, created_at, updated_at')
+        .select('*')
         .eq('user_id', user.id)
         .order('appointment_date', { ascending: true });
 
@@ -137,19 +134,19 @@ const AppointmentsPage: React.FC = () => {
         0
       );
 
+      // Create a comprehensive description that includes all appointment details
+      const appointmentDescription = `Appointment with ${DOCTORS.find(d => d.id === doctor)?.name || 'Unknown Doctor'} at ${timeSlot}. Purpose: ${purpose.trim()}`;
+
       const { data, error } = await supabase
         .from('appointments')
         .insert([
           {
             user_id: user.id,
-            doctor_id: doctor,
             appointment_date: appointmentDateTime.toISOString(),
-            time_slot: timeSlot,
-            purpose: purpose.trim(),
-            status: 'scheduled'
+            description: appointmentDescription
           }
         ])
-        .select('id, user_id, doctor_id, appointment_date, time_slot, purpose, status, created_at, updated_at')
+        .select()
         .single();
 
       if (error) {
@@ -189,11 +186,11 @@ const AppointmentsPage: React.FC = () => {
   };
 
   const upcomingAppointments = appointments.filter(apt => 
-    new Date(apt.appointment_date) > new Date() && apt.status === 'scheduled'
+    new Date(apt.appointment_date) > new Date()
   );
 
   const pastAppointments = appointments.filter(apt => 
-    new Date(apt.appointment_date) <= new Date() || apt.status === 'completed'
+    new Date(apt.appointment_date) <= new Date()
   );
 
   return (
@@ -339,7 +336,6 @@ interface AppointmentProps {
 const AppointmentCard: React.FC<AppointmentProps> = ({ appointment, isPast = false }) => {
   const { t } = useLanguage();
   
-  const doctor = DOCTORS.find(d => d.id === appointment.doctor_id);
   const appointmentDate = new Date(appointment.appointment_date);
   
   return (
@@ -354,17 +350,14 @@ const AppointmentCard: React.FC<AppointmentProps> = ({ appointment, isPast = fal
               <Calendar className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h3 className="font-medium">{doctor?.name || t('unknownDoctor')}</h3>
-              <p className="text-sm text-muted-foreground">{appointment.purpose}</p>
+              <h3 className="font-medium">{t('appointment')}</h3>
+              <p className="text-sm text-muted-foreground">{appointment.description}</p>
               <div className="flex items-center gap-2 mt-1 text-sm">
                 <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
                 <span>{format(appointmentDate, 'PPP')}</span>
                 <Clock className="h-3.5 w-3.5 ml-2 text-muted-foreground" />
-                <span>{appointment.time_slot}</span>
+                <span>{format(appointmentDate, 'p')}</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {t('status')}: {t(appointment.status)}
-              </p>
             </div>
           </div>
           
