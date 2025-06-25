@@ -1,52 +1,20 @@
-
 import React, { useState, useEffect } from 'react';
-import { useUser } from '@/contexts/UserContext';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Calendar, Clock, Check, Calendar as CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { Calendar, Clock, Plus, CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-
 import DashboardLayout from '@/components/DashboardLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useUser } from '@/contexts/UserContext';
+import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 
-const DOCTORS = [
-  { id: '1', name: 'Dr. Sarah Johnson', specialty: 'General Practitioner' },
-  { id: '2', name: 'Dr. Michael Chen', specialty: 'Cardiologist' },
-  { id: '3', name: 'Dr. Robert Wilson', specialty: 'Pediatrician' },
-  { id: '4', name: 'Dr. Emily Davis', specialty: 'Dermatologist' },
-];
-
-const TIME_SLOTS = [
-  '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
-  '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM',
-  '4:00 PM', '4:30 PM'
-];
-
+// Updated interface to match actual database schema
 interface Appointment {
-  id: string;
+  id: number; // Changed from string to number to match database
   user_id: string;
   appointment_date: string;
   description: string;
@@ -54,19 +22,35 @@ interface Appointment {
   updated_at: string;
 }
 
+const DOCTORS = [
+  { id: '1', name: 'Dr. Amadou Ba', specialty: 'Cardiology', avatar: '/placeholder.svg' },
+  { id: '2', name: 'Dr. Fatima Diallo', specialty: 'Pediatrics', avatar: '/placeholder.svg' },
+  { id: '3', name: 'Dr. Mamadou Sow', specialty: 'Internal Medicine', avatar: '/placeholder.svg' },
+  { id: '4', name: 'Dr. Aissatou Kane', specialty: 'Gynecology', avatar: '/placeholder.svg' },
+];
+
+const TIME_SLOTS = [
+  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+  '11:00', '11:30', '14:00', '14:30', '15:00', '15:30',
+  '16:00', '16:30', '17:00', '17:30'
+];
+
 const AppointmentsPage: React.FC = () => {
   const { t } = useLanguage();
   const { user } = useUser();
   const { toast } = useToast();
-
-  const [date, setDate] = useState<Date | undefined>(undefined);
-  const [timeSlot, setTimeSlot] = useState<string>('');
-  const [doctor, setDoctor] = useState<string>('');
-  const [purpose, setPurpose] = useState<string>('');
+  
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showNewAppointment, setShowNewAppointment] = useState(false);
+  
+  // Form state
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+  const [selectedDoctor, setSelectedDoctor] = useState('');
+  const [purpose, setPurpose] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
-  // Fetch appointments on component mount
   useEffect(() => {
     if (user) {
       fetchAppointments();
@@ -75,7 +59,7 @@ const AppointmentsPage: React.FC = () => {
 
   const fetchAppointments = async () => {
     if (!user) return;
-
+    
     try {
       const { data, error } = await supabase
         .from('appointments')
@@ -87,55 +71,47 @@ const AppointmentsPage: React.FC = () => {
         console.error('Error fetching appointments:', error);
         toast({
           variant: "destructive",
-          title: t('errorFetchingAppointments'),
-          description: error.message,
+          title: "Error",
+          description: "Failed to load appointments",
         });
-      } else {
-        setAppointments(data || []);
+        return;
       }
+
+      setAppointments(data || []);
     } catch (error) {
-      console.error('Error fetching appointments:', error);
+      console.error('Unexpected error:', error);
       toast({
         variant: "destructive",
-        title: t('errorFetchingAppointments'),
-        description: t('unexpectedError'),
+        title: "Error",
+        description: "An unexpected error occurred",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  const handleBookAppointment = async () => {
-    if (!date || !timeSlot || !doctor || !purpose.trim()) {
-      toast({
-        variant: "destructive",
-        title: t('missingInformation'),
-        description: t('pleaseAllFields'),
-      });
-      return;
-    }
 
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: t('authenticationRequired'),
-        description: t('pleaseLogin'),
-      });
-      return;
-    }
-
-    setLoading(true);
+  const handleCreateAppointment = async (e: React.FormEvent) => {
+    e.preventDefault();
     
+    if (!user || !selectedDate || !selectedTimeSlot || !selectedDoctor || !purpose.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please fill in all fields",
+      });
+      return;
+    }
+
+    setIsCreating(true);
+
     try {
-      // Combine date and time for the appointment
-      const appointmentDateTime = new Date(date);
-      appointmentDateTime.setHours(
-        parseInt(timeSlot.split(':')[0]) + (timeSlot.includes('PM') && !timeSlot.includes('12') ? 12 : 0),
-        parseInt(timeSlot.split(':')[1].split(' ')[0]),
-        0,
-        0
-      );
+      // Parse selected date and time
+      const [hours, minutes] = selectedTimeSlot.split(':').map(Number);
+      const appointmentDateTime = new Date(selectedDate);
+      appointmentDateTime.setHours(hours, minutes, 0, 0);
 
       // Create a comprehensive description that includes all appointment details
-      const appointmentDescription = `Appointment with ${DOCTORS.find(d => d.id === doctor)?.name || 'Unknown Doctor'} at ${timeSlot}. Purpose: ${purpose.trim()}`;
+      const appointmentDescription = `Appointment with ${DOCTORS.find(d => d.id === selectedDoctor)?.name || 'Unknown Doctor'} at ${selectedTimeSlot}. Purpose: ${purpose.trim()}`;
 
       const { data, error } = await supabase
         .from('appointments')
@@ -150,38 +126,39 @@ const AppointmentsPage: React.FC = () => {
         .single();
 
       if (error) {
-        console.error('Error booking appointment:', error);
+        console.error('Error creating appointment:', error);
         toast({
           variant: "destructive",
-          title: t('bookingFailed'),
-          description: error.message,
+          title: "Error",
+          description: "Failed to create appointment",
         });
         return;
       }
 
-      toast({
-        title: t('appointmentBooked'),
-        description: t('appointmentScheduled').replace('{date}', format(date, 'PPP')).replace('{time}', timeSlot),
-      });
+      // Add the new appointment to the list
+      setAppointments(prev => [...prev, data]);
       
       // Reset form
-      setDate(undefined);
-      setTimeSlot('');
-      setDoctor('');
+      setSelectedDate('');
+      setSelectedTimeSlot('');
+      setSelectedDoctor('');
       setPurpose('');
-      
-      // Refresh appointments list
-      fetchAppointments();
-      
+      setShowNewAppointment(false);
+
+      toast({
+        title: "Success",
+        description: "Appointment created successfully",
+      });
+
     } catch (error) {
-      console.error('Error booking appointment:', error);
+      console.error('Unexpected error:', error);
       toast({
         variant: "destructive",
-        title: t('bookingFailed'),
-        description: t('unexpectedError'),
+        title: "Error",
+        description: "An unexpected error occurred",
       });
     } finally {
-      setLoading(false);
+      setIsCreating(false);
     }
   };
 
@@ -196,133 +173,146 @@ const AppointmentsPage: React.FC = () => {
   return (
     <DashboardLayout title={t('appointments')}>
       <div className="space-y-6">
-        <Tabs defaultValue="upcoming" className="w-full">
-          <TabsList className="grid grid-cols-3 mb-6">
-            <TabsTrigger value="upcoming">{t('upcoming')}</TabsTrigger>
-            <TabsTrigger value="book">{t('bookNew')}</TabsTrigger>
-            <TabsTrigger value="past">{t('past')}</TabsTrigger>
-          </TabsList>
-          
-          {/* Upcoming Appointments Tab */}
-          <TabsContent value="upcoming" className="space-y-4">
-            {upcomingAppointments.length > 0 ? (
-              upcomingAppointments.map((appointment) => (
-                <AppointmentCard key={appointment.id} appointment={appointment} />
-              ))
-            ) : (
-              <Card>
-                <CardContent className="pt-6 text-center text-muted-foreground">
-                  {t('noUpcomingAppointments')}
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-          
-          {/* Book New Appointment Tab */}
-          <TabsContent value="book">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('bookNewAppointment')}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">{t('appointments')}</h1>
+          <Button onClick={() => setShowNewAppointment(!showNewAppointment)}>
+            <Plus className="h-4 w-4 mr-2" />
+            {t('newAppointment')}
+          </Button>
+        </div>
+
+        {/* New Appointment Form */}
+        {showNewAppointment && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('scheduleNewAppointment')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleCreateAppointment} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">{t('date')}</label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !date && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? format(date, "PPP") : <span>{t('selectDate')}</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <CalendarComponent
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                          initialFocus
-                          disabled={(date) => 
-                            date < new Date(new Date().setHours(0, 0, 0, 0)) ||
-                            date.getDay() === 0 || // Disable Sundays
-                            date.getDay() === 6    // Disable Saturdays
-                          }
-                        />
-                      </PopoverContent>
-                    </Popover>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">{t('date')}:</label>
+                    <Input
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      required
+                    />
                   </div>
                   
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">{t('time')}</label>
-                    <Select value={timeSlot} onValueChange={setTimeSlot}>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">{t('timeSlot')}:</label>
+                    <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
                       <SelectTrigger>
-                        <SelectValue placeholder={t('selectTime')} />
+                        <SelectValue placeholder={t('selectTimeSlot')} />
                       </SelectTrigger>
                       <SelectContent>
-                        {TIME_SLOTS.map((time) => (
-                          <SelectItem key={time} value={time}>{time}</SelectItem>
+                        {TIME_SLOTS.map(slot => (
+                          <SelectItem key={slot} value={slot}>
+                            {slot}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t('doctor')}</label>
-                  <Select value={doctor} onValueChange={setDoctor}>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">{t('doctor')}:</label>
+                  <Select value={selectedDoctor} onValueChange={setSelectedDoctor}>
                     <SelectTrigger>
                       <SelectValue placeholder={t('selectDoctor')} />
                     </SelectTrigger>
                     <SelectContent>
-                      {DOCTORS.map((doctor) => (
+                      {DOCTORS.map(doctor => (
                         <SelectItem key={doctor.id} value={doctor.id}>
-                          {doctor.name} - {t(doctor.specialty.toLowerCase().replace(' ', ''))}
+                          {doctor.name} - {doctor.specialty}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t('purpose')}</label>
-                  <Textarea 
-                    placeholder={t('describeReason')}
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">{t('purpose')}:</label>
+                  <Textarea
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value)}
+                    placeholder={t('describePurpose')}
+                    rows={3}
+                    required
                   />
                 </div>
-                
-                <Button 
-                  onClick={handleBookAppointment} 
-                  className="w-full"
-                  disabled={loading}
-                >
-                  {loading ? t('booking') : t('bookAppointment')}
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Past Appointments Tab */}
-          <TabsContent value="past" className="space-y-4">
-            {pastAppointments.length > 0 ? (
-              pastAppointments.map((appointment) => (
-                <AppointmentCard key={appointment.id} appointment={appointment} isPast />
-              ))
+
+                <div className="flex gap-2">
+                  <Button type="submit" disabled={isCreating}>
+                    {isCreating ? t('creating') : t('createAppointment')}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setShowNewAppointment(false)}>
+                    {t('cancel')}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Upcoming Appointments */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              {t('upcomingAppointments')} ({upcomingAppointments.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="text-center py-4">Loading...</div>
+            ) : upcomingAppointments.length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">
+                {t('noUpcomingAppointments')}
+              </p>
             ) : (
-              <Card>
-                <CardContent className="pt-6 text-center text-muted-foreground">
-                  {t('noPastAppointments')}
-                </CardContent>
-              </Card>
+              <div className="space-y-3">
+                {upcomingAppointments.map(appointment => (
+                  <AppointmentCard 
+                    key={appointment.id} 
+                    appointment={appointment} 
+                  />
+                ))}
+              </div>
             )}
-          </TabsContent>
-        </Tabs>
+          </CardContent>
+        </Card>
+
+        {/* Past Appointments */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              {t('pastAppointments')} ({pastAppointments.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {pastAppointments.length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">
+                {t('noPastAppointments')}
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {pastAppointments.map(appointment => (
+                  <AppointmentCard 
+                    key={appointment.id} 
+                    appointment={appointment} 
+                    isPast={true}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );
@@ -339,40 +329,24 @@ const AppointmentCard: React.FC<AppointmentProps> = ({ appointment, isPast = fal
   const appointmentDate = new Date(appointment.appointment_date);
   
   return (
-    <Card className={cn(
-      "transition-all",
-      isPast ? "opacity-80" : "hover:shadow-md"
-    )}>
-      <CardContent className="p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-start gap-4">
-            <div className="bg-primary/10 p-3 rounded-full">
-              <Calendar className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-medium">{t('appointment')}</h3>
-              <p className="text-sm text-muted-foreground">{appointment.description}</p>
-              <div className="flex items-center gap-2 mt-1 text-sm">
-                <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>{format(appointmentDate, 'PPP')}</span>
-                <Clock className="h-3.5 w-3.5 ml-2 text-muted-foreground" />
-                <span>{format(appointmentDate, 'p')}</span>
-              </div>
-            </div>
+    <Card className={`p-4 ${isPast ? 'opacity-75' : ''}`}>
+      <div className="flex items-start justify-between">
+        <div className="flex items-start space-x-3">
+          <div className={`p-2 rounded-full ${isPast ? 'bg-gray-100' : 'bg-primary/10'}`}>
+            <Calendar className="h-6 w-6 text-primary" />
           </div>
-          
-          <div className="flex items-center ml-auto">
-            {isPast ? (
-              <div className="flex items-center text-sm text-green-600">
-                <Check className="h-4 w-4 mr-1" />
-                <span>{t('completed')}</span>
-              </div>
-            ) : (
-              <Button variant="outline" size="sm">{t('reschedule')}</Button>
-            )}
+          <div>
+            <h3 className="font-medium">{t('appointment')}</h3>
+            <p className="text-sm text-muted-foreground">{appointment.description}</p>
+            <div className="flex items-center gap-2 mt-1 text-sm">
+              <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
+              <span>{format(appointmentDate, 'PPP')}</span>
+              <Clock className="h-3.5 w-3.5 ml-2 text-muted-foreground" />
+              <span>{format(appointmentDate, 'p')}</span>
+            </div>
           </div>
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 };
