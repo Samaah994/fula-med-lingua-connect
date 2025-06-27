@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -91,7 +90,12 @@ const AppointmentsPage: React.FC = () => {
           description: error.message,
         });
       } else {
-        setAppointments(data || []);
+        // Convert the data to match our interface
+        const appointmentsData = data?.map(appointment => ({
+          ...appointment,
+          id: appointment.id.toString()
+        })) || [];
+        setAppointments(appointmentsData);
       }
     } catch (error) {
       console.error('Error fetching appointments:', error);
